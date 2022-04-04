@@ -1,0 +1,234 @@
+' Gambas class file
+
+' Gambas class file
+
+Inherits Dibujo
+
+Private ArrayCoord As New Point[]
+
+Private paso As Integer = 5
+
+Private dx As Integer
+Private dy As Integer
+
+Public Sub _new(...)
+
+  Dim puntoTmp As New Point
+
+  puntoTmp.x = param[0]
+  puntoTmp.y = param[1]
+
+  ArrayCoord.Add(puntoTmp)
+  ArrayCoord.Add(puntotmp)
+
+End
+
+Public Sub dibuja()
+
+  Dim a As Integer
+
+  Paint.LineCap = Paint.LineCapRound
+  Paint.Dash = Null
+  Paint.DashOffset = 0
+  If Super.getTamano() = 0 Then
+    Paint.LineWidth = 22
+  Else
+    Paint.LineWidth = Super.getTamano() + ModuleComun.IncrementoMarcador
+  Endif
+
+  If Super.getColor() = 0 Then
+    Paint.Brush = Paint.Color(&H85FFF300)
+  Else
+    Paint.Brush = Paint.Color(&h85000000 + Super.getColor())
+  Endif
+
+  For a = 0 To ArrayCoord.Max - 1
+    ' Paint.LineCap = Paint.LineCapRound
+
+    Paint.MoveTo(ArrayCoord[a].x, ArrayCoord[a].y)
+    Paint.LineTo(ArrayCoord[a + 1].x, ArrayCoord[a + 1].y)
+    Paint.stroke
+  Next
+  If Super.ptoControl = True Then
+    Paint.DrawImage(Me.iconoMover, ArrayCoord[ArrayCoord.Max].x, ArrayCoord[ArrayCoord.Max].y)
+    dx = ArrayCoord[ArrayCoord.Max].x + 16
+    dy = ArrayCoord[ArrayCoord.Max].y + 16
+    Paint.stroke
+  Endif
+
+End
+
+Public Sub Add(x As Integer, y As Integer)
+
+  Dim puntoTmp As New Point
+
+  Dim dist As Integer
+
+  dist = Sqr((x - ArrayCoord[ArrayCoord.max].x) ^ 2 + (y - ArrayCoord[ArrayCoord.max].y) ^ 2)
+  If dist > paso Then
+    puntoTmp.x = x
+    puntoTmp.y = y
+    ArrayCoord[1] = puntoTmp
+  Endif
+
+End
+
+Public Sub desplaza(x As Integer, y As Integer)
+
+  Dim a As Integer
+  'Dim w, h As Integer
+
+  For a = 0 To ArrayCoord.Max
+
+    ArrayCoord[a].x += x - dx
+    ArrayCoord[a].y += y - dy
+  Next
+
+End
+
+Public Sub getx() As Integer
+
+  Return dx ' mouseinicioX
+
+End
+
+Public Sub gety() As Integer
+
+  Return dy 'mouseinicioY
+
+End
+
+'---------------------------------------------
+' mostrar propiedades
+' ---------------------------------------------
+Public Sub mostrarpropiedades()
+
+  Dim pro As New FormCuadroPropiedades
+
+  pro.mostrar(Me, ["Grosor_Linea", "Color_Linea|colorbutton", "PtoInicio_X", "PtoInicio_Y", "PtoFin_X", "PtoFin_Y"])
+
+End
+
+'----------------------------------
+'propiedades editables
+'----------------------------------
+Property Color_Linea As Integer 'color de la linea
+Property Grosor_Linea As Integer 'grosor de la linea
+Property PtoInicio_X As Integer
+Property PtoInicio_Y As Integer
+Property PtoFin_X As Integer
+Property PtoFin_Y As Integer
+
+Private Function Color_Linea_Read() As Integer
+
+  Return Super.getColor()
+
+End
+
+Private Sub Color_Linea_Write(Value As Integer)
+
+  Super.SetColor(value)
+
+End
+
+Private Function Grosor_Linea_Read() As Integer
+
+  Return Super.getTamano()
+
+End
+
+Private Sub Grosor_Linea_Write(Value As Integer)
+
+  Super.Settamano(value)
+
+End
+
+Private Function PtoInicio_X_Read() As Integer
+
+  Return ArrayCoord[0].x
+
+End
+
+Private Sub PtoInicio_X_Write(Value As Integer)
+
+  ArrayCoord[0].x = value
+
+End
+
+Private Function PtoInicio_Y_Read() As Integer
+
+  Return ArrayCoord[0].Y
+
+End
+
+Private Sub PtoInicio_Y_Write(Value As Integer)
+
+  ArrayCoord[0].Y = value
+
+End
+
+Private Function PtoFin_X_Read() As Integer
+
+  Return ArrayCoord[1].x
+
+End
+
+Private Sub PtoFin_X_Write(Value As Integer)
+
+  ArrayCoord[1].x = value
+
+End
+
+Private Function PtoFin_Y_Read() As Integer
+
+  Return arrayCoord[1].y
+
+End
+
+Private Sub PtoFin_Y_Write(Value As Integer)
+
+  ArrayCoord[1].y = value
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|Subrayador|"
+  contenido &= Str$(Me.Color_Linea) & "|"
+  contenido &= Str$(Me.Grosor_Linea) & "|"
+  contenido &= Str$(Me.PtoInicio_X) & "|"
+  contenido &= Str$(Me.PtoInicio_Y) & "|"
+  contenido &= Str$(Me.PtoFin_X) & "|"
+  contenido &= Str$(Me.PtoFin_Y) & "|"
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  Dim pto As Point
+
+  If Arraylinea[1] = "Subrayador" Then
+    Me.Color_Linea = Val(Arraylinea[2])
+    Me.Grosor_Linea = Val(Arraylinea[3])
+    ' Me.PtoInicio_X = Val(Arraylinea[4])
+    ' Me.PtoInicio_Y = Val(Arraylinea[5])
+    ' Me.PtoFin_X = Val(Arraylinea[6])
+    ' Me.PtoFin_Y = Val(Arraylinea[7])
+
+    ArrayCoord.clear()
+    pto = New Point(Arraylinea[4], Arraylinea[5])
+    ArrayCoord.Add(pto)
+
+    pto = New Point(Arraylinea[6], Arraylinea[7])
+    ArrayCoord.Add(pto)
+
+    Return True
+  Else
+    Return False
+
+  Endif
+
+End

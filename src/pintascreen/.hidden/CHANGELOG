@@ -1,0 +1,233 @@
+* Mon Apr 04 2022 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.77
+
+* Mon Apr 04 2022 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.77
+
+* Mon Apr 04 2022 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.77
+
+* Mon Apr 04 2022 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.77
+
+* Sat Mar 31 2018 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.77
+
+* Sat Mar 31 2018 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.77
+- Corregidos algunos errores al guardar y abrir archivos de capturas
+
+* Sat Mar 31 2018 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.76
+-cambio directorio de trabajo. En vez de el temporal trabajo en uno que sea del usuario dentro de directorio oculto config
+
+* Thu Dec 28 2017 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.75
+- text Rich Text y poner imagen de fondo con varios modo de escala
+
+* Sun Jan 01 2017 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.74
+- pequeños cambios de configuracion de preguntar para borrar todo, guardar en formato jpg por defecto las capturas
+
+* Sun Oct 23 2016 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.73
+- fondo dinamico para 2º pantalla
+
+* Sat May 21 2016 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.73
+-gb.gui.qt (para que eliga entre qt4 o qt5, segun lo instalado en el ordenador)
+-Corregido bug del borrado todo y bug de propiedades
+
+* Mon Mar 21 2016 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.72
+- qt4 a qt5
+
+* Sat Oct 24 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.69
+- arreglado bug en herramienta emborronar
+
+* Mon Oct 12 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.68
+- mejorado captura de pantalla para respetar barras arriba o laterales fijas
+- iconos del cursor cambiados
+
+* Sun Mar 22 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.67
+- la herramiento emborronar funciona como el resto, haciendo que se puedan emborronar varias zonas sin tener que volver a pulsar el boton emborronado.
+
+* Sun Mar 22 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.66
+- incorporada traduccion al gallego
+
+* Sat Mar 21 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.65
+
+* Sat Mar 21 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.65
+- add herramienta emborronado
+
+* Fri Mar 06 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.64
+
+* Sun Mar 01 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.64
+- prueba de si guarda los archivos .po y .mo en paquete deb
+
+* Wed Feb 25 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.64
+- incluido archivo gl.po y gl.mo manualmente en .lang
+
+* Fri Feb 20 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.63
+- incluido traduccion en gallego
+
+* Thu Jan 29 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.61
+
+* Thu Jan 29 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.61
+
+* Thu Jan 29 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.61
+
+* Thu Jan 29 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.61
+- guadar la zona seleccionada en el portapapeles si no lo guardamos
+
+* Sun Jan 25 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.60
+
+* Sun Jan 25 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.59
+- Mejora en el dibujo de la flecha en la recta
+
+* Sat Jan 24 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.59
+- traducido al ingles
+
+* Fri Jan 23 2015 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.58
+- traducido al portugues
+
+* Mon Dec 15 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.56
+- uso dir en vez de rdir que tardaba demasiado
+
+* Mon Dec 15 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.56
+- corregido asignacion de  "bocadillos"
+
+* Mon Dec 15 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.56
+
+* Mon Dec 15 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.56
+- Mejoras en relleno de objetos, guardar y abrir archivos con datos de capturas, bocadillos
+
+* Mon Dec 08 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.54
+- Propiedades y Cambio tamaño
+
+* Thu Dec 04 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.53
+
+* Thu Dec 04 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.53
+- recuerda el tamaño y diametro de la herramienta numerado. Emite un sonido cuando captura la imagen
+
+* Mon Dec 01 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.51
+- Ahora se puede redimensionar el tamanno de la ventana de la webcam
+
+* Sun Nov 30 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.50
+- Mejoras en la personilizacion de la herramienta numerador tamano circulo, letra, boton derecho raton para que permanezca sin aumentar numerador
+
+* Tue Nov 25 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.49
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+
+* Sat Nov 22 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.48
+- Agregado webcam, elegir imagen del disco, mover elementos (lineas y subrayador), borrado de elementos. seleccionados. Eliminar uso de $User y de scrot
+
+* Mon Oct 27 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.46
+- Boton update pasa al formulario de configuracion
+
+* Sun Oct 26 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.45
+
+* Sun Oct 26 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.45
+- add captura de retardo 5 segundos
+
+* Sun Aug 17 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.44
+- centrado el punto de desplazamiento de elipse y rectangulo
+
+* Sun Aug 17 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.43
+
+* Sun Aug 17 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.42
+- corregido bug de desktop.open que fallaba, ahora sale un mensaje
+
+* Sun Aug 17 2014 Julio Sanchez Berro <jusabejusabe@gmail.com> 0.0.41
+- botones pulsados para saber que herramienta tienes activada
+
+* Thu Aug 07 2014 minino <jusabejusabe@gmail.com> 0.0.40
+- Mejoras para poder usarlo en linux mint
+
+* Fri Jul 18 2014 minino <jusabejusabe@gmail.com> 0.0.39
+-ampliado tamaño de teclado virtual
+
+* Thu Jul 10 2014 minino <jusabejusabe@gmail.com> 0.0.38
+- teclado virtual
+
+* Sat Jun 28 2014 minino <jusabejusabe@gmail.com> 0.0.35
+- Mejora: Elegir tipo de chincheta. Ahora los objetos (texto, numerador, chicheta, rectangulo, y elipse) se pueden cambiar de posicion. Antes era solo el texto.
+
+* Fri Jun 27 2014 minino <jusabejusabe@gmail.com> 0.0.34
+- bug: si no encuentra la camara web muestra un mensaje de error
+
+* Thu Jun 26 2014 minino <jusabejusabe@gmail.com> 0.0.33
+-Bug: 0,0 no se insertan. y añadido captura desde camara web
+
+* Thu Jun 26 2014 minino <jusabejusabe@gmail.com> 0.0.32
+- modifico algunos codigos para ser mas compatible con linux mint
+
+* Thu Jun 26 2014 minino <jusabejusabe@gmail.com> 0.0.32
+
+* Sun Jun 22 2014 minino <jusabejusabe@gmail.com> 0.0.31
+- boton update, corregido bug de guardar cuando existia otro archivo con el mismo nombre
+
+* Tue Jun 17 2014 minino <jusabejusabe@gmail.com> 0.0.29
+-copiando fichero en blanco
+
+* Tue Jun 17 2014 minino <jusabejusabe@gmail.com> 0.0.29
+- fondo en blanco
+
+* Mon Jun 16 2014 minino <jusabejusabe@gmail.com> 0.0.28
+- Mejoras en la captura de pantalla al formato png
+
+* Mon Jun 16 2014 minino <jusabejusabe@gmail.com> 0.0.27
+
+* Mon Jun 16 2014 minino <jusabejusabe@gmail.com> 0.0.27
+
+* Mon Jun 16 2014 minino <jusabejusabe@gmail.com> 0.0.26
+- bug de aclara
+
+* Sun Jun 15 2014 minino <jusabejusabe@gmail.com> 0.0.23
+- iconos mejorados por Antonio Sanchez
+
+* Sun Jun 15 2014 minino <jusabejusabe@gmail.com> 0.0.21
+- iconos mejorados
+
+* Fri Jun 13 2014 minino <jusabejusabe@gmail.com> 0.0.21
+
+* Fri Jun 13 2014 minino <jusabejusabe@gmail.com> 0.0.20
+- icono numerico nuevo
+
+* Thu Jun 12 2014 minino <jusabejusabe@gmail.com> 0.0.18
+- marcador dibujo temporal
+
+* Thu Jun 12 2014 minino <jusabejusabe@gmail.com> 0.0.17
+- mejoras de Numerador y Flechas dinamica, cursor color
+
+* Wed Jun 11 2014 minino <jusabejusabe@gmail.com> 0.0.16
+- mejoras en arrastre de figuras mientras las creas
+
+* Tue Jun 10 2014 minino <jusabejusabe@gmail.com> 0.0.12
+- tecla esc
+
+* Tue Jun 10 2014 minino <jusabejusabe@gmail.com> 0.0.12
+- cursor especial
+
+* Mon Jun 09 2014 minino <jusabejusabe@gmail.com> 0.0.10
+
+* Mon Jun 09 2014 minino <jusabejusabe@gmail.com> 0.0.9
+- alclara mejor y pongo chincheta
+
+* Sun Jun 08 2014 minino <jusabejusabe@gmail.com> 0.0.6
+- Mejoras: editor texto y varias
+
+* Sat Jun 07 2014 minino <minino@minino> 0.0.3
+- Lanzamiento inicial
+

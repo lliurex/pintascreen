@@ -1,0 +1,199 @@
+' Gambas module file
+
+Public IncrementoLetra As Integer = 20
+Public IncrementoMarcador As Integer = 10
+Public ChinchetaRuta As String = "chinchetas/01.png"
+Public PreguntarBorrado As String
+
+Public distancia As Integer = 40
+
+Public Function BuscarObjeto(figuras As Dibujo[], x As Integer, y As Integer) As Dibujo
+
+  Dim dtmp As Dibujo
+
+  Dim d As Integer
+
+  For Each dtmp In figuras
+
+    If InStr(Upper$("Chincheta rectangulo elipse"), Upper$(Object.Class(dtmp).Name)) <> 0 Then
+      'tiene dos puntos a comprobar
+      'pruebo ptoinicial
+      d = ((dtmp.getx() - x) ^ 2 + (dtmp.gety() - y) ^ 2) ^ (1 / 2)
+      If d < distancia Then
+        'AVISO AL OBJETO QUE LO VOY A MOVER
+        dtmp.informePtoSeleccionado("mover")
+        Return dtmp
+      Endif
+      'pruebo ptodimension
+      d = ((dtmp.getxD() - x) ^ 2 + (dtmp.getyD() - y) ^ 2) ^ (1 / 2)
+      If d < distancia Then
+        If Object.Class(dtmp).Name = "Chincheta" And dtmp.TipoImagen = True Then
+          'AVISO AL OBJETO DE LO QUE LO VOY A REDIMENSIONAR. (se trata de una imagen elegida
+          dtmp.informePtoSeleccionado("redimensiona")
+          Return dtmp
+        Else
+          'se trata de un rectangulo o elipse.
+          dtmp.informePtoSeleccionado("redimensiona")
+          Return dtmp
+
+        Endif
+
+      Endif
+    Else
+      d = ((dtmp.getx() - x) ^ 2 + (dtmp.gety() - y) ^ 2) ^ (1 / 2)
+      If d < distancia Then
+        Return dtmp
+      Endif
+    Endif
+
+  Next
+
+  Return Null
+
+End
+
+Public Function BuscarTexto(figuras As Dibujo[], x As Integer, y As Integer) As Texto
+
+  Dim dtmp As Dibujo
+
+  Dim d As Integer
+  Dim te As Texto
+
+  For Each dtmp In figuras
+
+    If Object.Class(dtmp).name = "Texto" Then
+      te = dtmp
+
+      d = (te.getx() - x) ^ 2 + (te.gety() - y) ^ 2
+      If d < 2000 Then
+        '  te.editar()
+        Return TE
+      Endif
+
+    Endif
+
+  Next
+
+  Return Null
+
+End
+
+Public Function coloreaTriangulo(valor As Integer) As Image
+
+  Dim contenido As String
+  Dim i As Image
+
+  Try Kill user.home & "/.config/pintascreen/triangulo.svg"
+  Try Copy "triangulo.svg" To user.home & "/.config/pintascreen/triangulo.svg"
+  contenido = File.Load(user.home & "/.config/pintascreen/triangulo.svg")
+
+  contenido = Replace(contenido, "fill:#ff0000;", "fill:#" & Hex(valor) & ";")
+
+  File.Save(user.home & "/.config/pintascreen/trianguloColoreado.svg", contenido)
+  Try Kill user.home & "/.config/pintascreen/tri.png"
+  Shell "convert " & user.home & "/.config/pintascreen/trianguloColoreado.svg " & user.home & "/.config/pintascreen/tri.png" Wait
+
+  i = Image.Load(user.home & "/.config/pintascreen/tri.png")
+  Return i
+
+End
+
+Public Sub EmborronarTomarFotoParcial(x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer, v As Control) As String
+
+  Dim numeracion As String
+  Dim p As Picture
+  Dim valor As Integer
+
+  v.visible = False
+  Wait 0.1
+  'caputar
+  ' Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/$USER/fondoCaptura.png -q 100" Wait
+  '   Desktop.Screenshot(0, 0, Screen.w, Screen.h).Save( user.home & "/.config/pintascreen/fondo.jpg", 100)
+  If x1 > x2 Then
+    valor = x1
+    x1 = x2
+    x2 = valor
+  Endif
+
+  If y1 > y2 Then
+    valor = y1
+    y1 = y2
+    y2 = valor
+
+  Endif
+
+  p = Desktop.Screenshot(x1, y1, x2 - x1, y2 - y1)
+  numeracion = Right$("00000" & Str$(Int(Rnd(0, 90000))), 5)
+
+  p.Save(user.home & "/.config/pintascreen/emborronarA" & numeracion & ".jpg")
+  'hago conversion...
+  Wait 0.1
+  Shell "convert " & user.home & "/.config/pintascreen/emborronarA" & numeracion & ".jpg -blur 0x3 " & user.home & "/.config/pintascreen/emborronar" & numeracion & ".jpg"
+  While Not Exist(user.home & "/.config/pintascreen/emborronar" & numeracion & ".jpg")
+    Wait 0.1
+    'esperar hasta que no se cree el archivo
+  Wend
+
+  v.visible = True
+  Return user.home & "/.config/pintascreen/emborronar" & numeracion & ".jpg"
+
+End
+
+Public Sub TomarFotoParcial(x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer, v As Control)
+
+  Dim p As Picture
+  Dim valor As Integer
+
+  v.visible = False
+  Wait 0.1
+  'caputar
+  ' Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/$USER/fondoCaptura.png -q 100" Wait
+  Desktop.Screenshot(0, 0, Screen.w, Screen.h).Save(user.home & "/.config/pintascreen/fondo.jpg", 100)
+
+  If x1 > x2 Then
+    valor = x1
+    x1 = x2
+    x2 = valor
+  Endif
+
+  If y1 > y2 Then
+    valor = y1
+    y1 = y2
+    y2 = valor
+
+  Endif
+
+  p = Desktop.Screenshot(x1, y1, x2 - x1, y2 - y1)
+
+  Dialog.Filter = ["*.jpg", "jpg", "*.png", "png"]
+  'presentar dialog para guardar nombre
+  If Dialog.SaveFile() Then
+    'lo guardao en el portapapeles...
+
+    Clipboard.Copy(p.Image) 'imagen guarda en el portapapeles
+    fmensaje.mostrar(("Imagen guardada en el portapapeles"))
+  Else
+
+    If File.Ext(Dialog.path) = "" Then Dialog.path &= ".jpg" ' por defecto se guardan en formato jpg (mejor para internet, mas pequeños)
+    Try Kill Dialog.Path 'borrado preventivo si existe un archivo con nombre similar, version 0.31
+    p.Save(Dialog.Path)
+
+  Endif
+  Wait 0.1
+  v.visible = True
+
+End
+
+Public Function Between(Datos As String, Cadena1 As String, Cadena2 As String) As String
+
+  Dim iinf As Integer
+  Dim isup As Integer
+
+  iinf = InStr(Datos, Cadena1) + Len(Cadena1)
+  isup = InStr(Datos, Cadena2, iinf)
+
+  If iinf = 0 Then Return "ERROR"
+
+  Return Mid(Datos, iinf, isup - iinf)
+
+End

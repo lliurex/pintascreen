@@ -1,0 +1,119 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,85,58)
+  Icon = Picture["fondo.png"]
+  { RadioButtonRenglones RadioButton
+    MoveScaled(42,7,19,4)
+    Text = ("Renglones")
+  }
+  { RadioButtonCuadricula RadioButton
+    MoveScaled(42,13,18,4)
+    Text = ("Cuadricula")
+  }
+  { RadioButtonImagen RadioButton
+    MoveScaled(42,19,21,4)
+    Text = ("Imagen a elegir")
+    Value = True
+  }
+  { ButtonCarpeta Button
+    MoveScaled(62,18,7,7)
+    Picture = Picture["icon:/32/directory"]
+  }
+  { ButtonCancelar Button
+    MoveScaled(26,50,13,6)
+    Text = ("Cancelar")
+    Picture = Picture["icon:/22/cancel"]
+  }
+  { ButtonAceptar Button
+    MoveScaled(3,50,13,6)
+    Text = ("Aceptar")
+    Picture = Picture["icon:/22/apply"]
+  }
+  { SpinBoxR SpinBox
+    MoveScaled(62,7,9,4)
+    Value = 10
+  }
+  { SpinBoxRC SpinBox
+    MoveScaled(62,13,9,4)
+    Value = 10
+  }
+  { SpinBoxHC SpinBox
+    MoveScaled(74,13,8,4)
+    Value = 15
+  }
+  { DrawingAreaPantalla DrawingArea
+    MoveScaled(1,2,40,28)
+    Background = &HFFFFFF&
+    Border = Border.Plain
+  }
+  { RadioButtonEnBlanco RadioButton
+    MoveScaled(42,1,31,4)
+    Text = ("Fondo en blanco")
+  }
+  { RadioButtonWebCam RadioButton
+    MoveScaled(44,39,39,4)
+    Text = ("WebCam/Visor Documentos")
+  }
+  { TextBoxDispositivo TextBox
+    MoveScaled(59.1429,42.8571,25,3)
+    Text = ("/dev/video0")
+  }
+  { Label1 Label
+    MoveScaled(46,43,13,3)
+    Text = ("Dispositivo:")
+    Alignment = Align.Right
+  }
+  { Timer1 #Timer
+    #MoveScaled(0,32)
+  }
+  { PictureBox1 PictureBox
+    MoveScaled(1,2,40,28)
+  }
+  { RadioButtonFondoDinamico RadioButton
+    MoveScaled(44,48,31,4)
+    Text = ("Fondo de 2º pantalla")
+  }
+  { Frame1 Frame
+    MoveScaled(48,25,30,14)
+    Background = &H409F9F9F&
+    { PictureBoxModoActual PictureBox
+      MoveScaled(6,1,5,5)
+      ToolTip = ("escalar imagen")
+      Picture = Picture["modos/modo_actual.png"]
+      Stretch = True
+    }
+    { PictureBoxModoVertical PictureBox
+      MoveScaled(6,8,5,5)
+      ToolTip = ("ajuste vertical")
+      Picture = Picture["modos/Modo_Vertical.png"]
+      Stretch = True
+    }
+    { PictureBoxModoSinEscalar PictureBox
+      MoveScaled(18,1,5,5)
+      ToolTip = ("sin escalar imagen")
+      Picture = Picture["modos/ModoSinEscalar.png"]
+      Stretch = True
+    }
+    { PictureBoxModoHorizontal PictureBox
+      MoveScaled(18,8,5,5)
+      ToolTip = ("ajuste horizontal")
+      Picture = Picture["modos/Modo_Horizontal.png"]
+      Stretch = True
+    }
+    { !RadioButtonModoActual RadioButton
+      MoveScaled(2,0,3,7)
+      #Public = True
+      Value = True
+    }
+    { RadioButtonModoVertical RadioButton
+      MoveScaled(2,7,3,7)
+    }
+    { RadioButtonModoSinEscalar RadioButton
+      MoveScaled(14,1,4,5)
+    }
+    { RadioButtonModoHorizontal RadioButton
+      MoveScaled(14,8,3,5)
+    }
+  }
+}

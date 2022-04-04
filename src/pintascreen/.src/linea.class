@@ -1,0 +1,235 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private mouseinicioX As Integer
+Private mouseinicioY As Integer
+Public mousefinalX As Integer
+Public mousefinalY As Integer
+Private puntofin As Boolean
+Private Dashes As Float[] = [5.0, 1.0, 1.0, 1.0]  'skip
+
+Private dx As Integer
+Private dy As Integer
+
+Public Sub _new(...)
+
+  mouseinicioX = Param[0]
+  mouseinicioY = Param[1]
+
+End
+
+Public Sub dibuja()
+
+  If puntofin = True Then
+    '  Paint.LineCap = Paint.LineCapRound
+
+    If Super.getTamano() = 0 Then
+      Paint.LineWidth = 8
+    Else
+      Paint.LineWidth = Super.getTamano()
+    Endif
+
+    If Super.getColor() = 0 Then
+      Paint.Brush = Paint.Color(Color.red)
+
+    Else
+      Paint.Brush = Paint.Color(Super.getColor())
+    Endif
+    Paint.LineCap = Paint.LineCapRound
+    Paint.Dash = Null
+    Paint.DashOffset = 0
+    Paint.MoveTo(mouseinicioX, mouseinicioY)
+    Paint.LineTo(mousefinalX, mousefinalY)
+
+    Paint.stroke
+
+    If Super.ptoControl = True Then
+      Paint.DrawImage(Me.iconoMover, (mousefinalX + mouseinicioX) / 2, (mousefinalY + mouseinicioY) / 2)
+      dx = (mousefinalX + mouseinicioX) / 2 + 16
+      dy = (mousefinalY + mouseinicioY) / 2 + 16
+      Paint.stroke
+    Endif
+
+  Else
+    Paint.LineWidth = 3
+    Paint.LineCap = Paint.LineCapButt
+    Paint.Dash = Dashes
+    Paint.DashOffset = -5
+
+    Paint.Brush = Paint.Color(Color.RGB(0, 0, 0))
+    Paint.MoveTo(mouseinicioX, mouseinicioY)
+    Paint.LineTo(mousefinalX, mousefinalY)
+    Paint.stroke
+
+  Endif
+
+End
+
+Public Sub ptofinal(...)
+
+  mousefinalX = Param[0] 'x
+  mousefinalY = Param[1] 'y
+
+  puntofin = True
+
+End
+
+Public Sub ptoDiseno(x As Integer, y As Integer)
+
+  mousefinalX = x
+  mousefinalY = y
+
+End
+
+Public Sub desplaza(x As Integer, y As Integer)
+
+  'Dim w, h As Integer
+
+  mouseinicioX += x - dx
+  mouseinicioY += y - dy
+
+  mousefinalX += x - dx
+  mousefinaly += y - dy
+  '  mousefinalX = mouseinicioX + 10 'conservo los anchos y largo anteriores
+  ' h = mousefinalY
+
+End
+
+Public Sub getx() As Integer
+
+  Return dx ' mouseinicioX
+
+End
+
+Public Sub gety() As Integer
+
+  Return dy 'mouseinicioY
+
+End
+
+'---------------------------------------------
+' mostrar propiedades
+' ---------------------------------------------
+Public Sub mostrarpropiedades()
+
+  Dim pro As New FormCuadroPropiedades
+
+  pro.mostrar(Me, ["Grosor_Linea", "Color_Linea|colorbutton", "PtoInicio_X", "PtoInicio_Y", "PtoFin_X", "PtoFin_Y"])
+
+End
+
+'----------------------------------
+'propiedades editables
+'----------------------------------
+Property Color_Linea As Integer 'color de la linea
+Property Grosor_Linea As Integer 'grosor de la linea
+Property PtoInicio_X As Integer
+Property PtoInicio_Y As Integer
+Property PtoFin_X As Integer
+Property PtoFin_Y As Integer
+
+Private Function Color_Linea_Read() As Integer
+
+  Return Super.getColor()
+
+End
+
+Private Sub Color_Linea_Write(Value As Integer)
+
+  Super.SetColor(value)
+
+End
+
+Private Function Grosor_Linea_Read() As Integer
+
+  Return Super.getTamano()
+
+End
+
+Private Sub Grosor_Linea_Write(Value As Integer)
+
+  Super.Settamano(value)
+
+End
+
+Private Function PtoInicio_X_Read() As Integer
+
+  Return mouseinicioX
+
+End
+
+Private Sub PtoInicio_X_Write(Value As Integer)
+
+  mouseinicioX = value
+
+End
+
+Private Function PtoInicio_Y_Read() As Integer
+
+  Return mouseinicioY
+
+End
+
+Private Sub PtoInicio_Y_Write(Value As Integer)
+
+  mouseinicioY = value
+
+End
+
+Private Function PtoFin_X_Read() As Integer
+
+  Return mousefinalX
+
+End
+
+Private Sub PtoFin_X_Write(Value As Integer)
+
+  mousefinalX = value
+
+End
+
+Private Function PtoFin_Y_Read() As Integer
+
+  Return mousefinalY
+
+End
+
+Private Sub PtoFin_Y_Write(Value As Integer)
+
+  mousefinalY = value
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|Linea|"
+  contenido &= Str$(Super.getTamano()) & "|"
+  contenido &= Str$(Super.getColor()) & "|"
+  contenido &= Str$(mouseinicioX) & "|"
+  contenido &= Str$(mouseinicioY) & "|"
+  contenido &= Str$(mousefinalX) & "|"
+  contenido &= Str$(mousefinalY) & "|"
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  If Arraylinea[1] = "Linea" Then
+    Super.Settamano(Val(Arraylinea[2]))
+    Super.SetColor(Val(Arraylinea[3]))
+    mouseinicioX = Val(Arraylinea[4])
+    mouseinicioY = Val(Arraylinea[5])
+    mousefinalX = Val(Arraylinea[6])
+    mousefinalY = Val(Arraylinea[7])
+    puntofin = True
+    Return True
+  Else
+    Return False
+
+  Endif
+
+End

@@ -1,0 +1,10 @@
+' Gambas class file
+
+Inherits UnitTest
+
+Public Sub _Run()
+  
+  Print "What was the question again ?"
+  Me.Assert(5 / 0 = 42)
+  
+End

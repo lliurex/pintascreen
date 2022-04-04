@@ -1,0 +1,38 @@
+' Gambas class file
+
+Inherits Task
+Public Const ResultHeader As String = "TestResult"
+Public Const ResultSeparator As String = ":"
+Public Const StackTraceSeparator As String = ";"
+Private $UnitTest As UnitTest
+
+Public Sub _new(test As UnitTest)
+
+  $UnitTest = test
+
+End
+
+Public Sub Main()
+
+  Dim outputStream As Stream
+  Dim sHeaders As String[]
+  Dim sOutput As String
+
+  outputStream = Open String For Write
+
+  Output To #outputStream
+  $UnitTest.Start()
+  Output To Default
+
+  sOutput = Close outputStream
+
+  sHeaders = [ResultHeader,
+    $UnitTest.Failed,
+    $UnitTest.Error,
+    $UnitTest.FailureStackTrace.Join(StackTraceSeparator),
+    $UnitTest.FailureReason]
+
+  Print sHeaders.Join(ResultSeparator)
+  Print sOutput;;
+
+End

@@ -1,0 +1,41 @@
+' Gambas class file
+
+Public informacion As Variant[]
+
+Public Sub Form_Open()
+  
+  Me.Center()
+  
+End
+
+Public Sub ButtonCancelar_Click()
+  
+  informacion.Clear
+  informacion.Add(ColorButton1.value)
+  informacion.Add(SliderOpaco.value)
+  informacion.Add(SpinBoxAncho.Value)
+  informacion.Add(False)
+  
+  Me.Close()
+  
+End
+
+Public Sub form_Show()
+  
+  ColorButton1.value = informacion[0]
+  SliderOpaco.value = informacion[1]
+  
+  SpinBoxAncho.Value = informacion[2]
+  
+End
+
+Public Sub ButtonAceptar_Click()
+  
+  informacion.Clear
+  informacion.Add(ColorButton1.value)
+  informacion.Add(SliderOpaco.value)
+  informacion.Add(SpinBoxAncho.Value)
+  informacion.Add(True)
+  Me.Close()
+  
+End

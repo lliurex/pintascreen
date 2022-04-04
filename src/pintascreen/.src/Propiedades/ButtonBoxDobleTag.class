@@ -1,0 +1,18 @@
+' Gambas class file
+
+Inherits ButtonBox
+
+Property tipo As String ''Es otro .tag, para uso del programador,
+Private htipo As String
+
+Private Function tipo_Read() As String
+
+  Return htipo
+
+End
+
+Private Sub tipo_Write(Value As String)
+
+  htipo = value
+
+End

@@ -1,0 +1,308 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private mouseinicioX As Integer
+Private mouseinicioY As Integer
+Private mousefinalX As Integer
+Private mousefinalY As Integer
+
+Private giroX As Integer
+Private giroY As Integer
+Private angulo As Integer
+Private triangulo As Image
+
+Private puntofin As Boolean = False
+
+' Private CreaTriangulo As New ColorearTriangulo
+Private Dashes As Float[] = [5.0, 1.0, 1.0, 1.0]  'skip
+
+Private dx As Integer
+Private dy As Integer
+
+Private p1 As Point
+Private p2 As Point
+
+Public Sub _new(...)
+
+  mouseinicioX = param[0]
+  mouseinicioY = param[1]
+
+End
+
+Public Sub dibuja()
+
+  '  Dim hbrush As PaintBrush
+
+  If Super.getTamano() = 0 Then
+    Paint.LineWidth = 8
+  Else
+    Paint.LineWidth = Super.getTamano()
+  Endif
+
+  If Super.getColor() = 0 Then
+    Paint.Brush = Paint.Color(Color.red)
+    '     triangulo = CreaTriangulo.lee(Color.Orange)
+  Else
+    Paint.Brush = Paint.Color(Super.getColor())
+
+    '     triangulo = CreaTriangulo.lee(Super.getColor())
+
+  Endif
+
+  If puntofin = True Then
+    '  Paint.LineCap = Paint.LineCapRound
+    Paint.LineCap = Paint.LineCapRound
+    Paint.Dash = Null
+    Paint.DashOffset = 0
+    Paint.MoveTo(mouseinicioX, mouseinicioY)
+    Paint.LineTo(mousefinalX, mousefinalY)
+    Paint.stroke ' AÑADIDO DIBUJA LINEA antes de dibujar triangulo
+    Paint.MoveTo(mouseinicioX + 5, mouseinicioY + 5)
+    Paint.stroke
+    ' ORIGINEL GIRO
+    '     triangulo = triangulo.Rotate(Rad(angulo))
+    '  Paint.DrawImage(triangulo, girox, giroy)
+    Paint.stroke
+    ' modificacion de rotacion de imagen del dibujo
+    '' similar a :http://blog.gambas-es.org/aceleracion-y-friccion/#more-187
+    '   hbrush = Paint.Image(triangulo)
+    '   Paint.Rotate(Rad(angulo))
+    '   Paint.Translate(mousefinalX, mousefinalY)
+    '   Paint.Translate(- mousefinalX, - mousefinalY)
+    '   Paint.brush = hbrush
+    '   Paint.Fill
+    'Dibujo de flechaCalculada
+    Paint.MoveTo(p1.x, p1.y)
+    Paint.LineTo(mousefinalX, mousefinalY)
+    Paint.LineTo(p2.x, p2.y)
+
+    Paint.ClosePath
+    Paint.Fill(True)
+    Paint.stroke
+    '
+    If Super.ptoControl = True Then
+      Paint.DrawImage(Me.iconoMover, (mousefinalX + mouseinicioX) / 2, (mousefinalY + mouseinicioY) / 2)
+      dx = (mousefinalX + mouseinicioX) / 2 + 16
+      dy = (mousefinalY + mouseinicioY) / 2 + 16
+      Paint.stroke
+    Endif
+  Else
+    Paint.LineWidth = 3
+    Paint.LineCap = Paint.LineCapButt
+    Paint.Dash = Dashes
+    Paint.DashOffset = -5
+
+    Paint.Brush = Paint.Color(Color.RGB(0, 0, 0))
+    Paint.MoveTo(mouseinicioX, mouseinicioY)
+    Paint.LineTo(mousefinalX, mousefinalY)
+    Paint.stroke
+  Endif
+
+End
+
+Public Sub ptofinal(X As Integer, y As Integer)
+
+  Dim mouseestuvoX As Integer
+  Dim mouseestuvoY As Integer
+
+  mousefinalX = x
+  mousefinalY = y
+
+  mouseestuvoX = mouseinicioX ' flechas de un solo tramo
+  mouseestuvoY = mouseinicioY '
+
+  puntofin = True
+
+  p1 = EcuacionesRecta.PtoFlecha1(25, 30, mouseinicioX, mouseinicioY, mousefinalX, mousefinaly)
+  p2 = EcuacionesRecta.PtoFlecha2(25, 30, mouseinicioX, mouseinicioY, mousefinalX, mousefinaly) '
+
+  ' posicionx.Reverse
+  ' posiciony.Reverse
+  '  mouseestuvoX = posicionx[10] 'Esto es para pillar la pendiente desde el punto -10 hasta donde esté el ratón ahora mismo
+  '  mouseestuvoY = posiciony[10]
+  'OJO PORQUE EL 0,0 ESTÁ ARRIBA A LA IZQUIERDA
+  ' If (mousefinalY - mouseestuvoY = 0) And (mousefinalX - mouseestuvoX > 0) Then 'coordenada X
+  '   angulo = 0
+  '   giroX = mousefinalX - 25
+  '   giroY = mousefinalY - 20
+  '
+  ' Else If (mousefinalY - mouseestuvoY = 0) And (mousefinalX - mouseestuvoX < 0) Then 'coordenada -X
+  '   angulo = 180
+  '   giroX = mousefinalX - 25
+  '   giroY = mousefinalY - 20
+  '
+  ' Else If (mousefinalY - mouseestuvoY > 0) And (mousefinalX - mouseestuvoX = 0) Then 'ordenada Y hacia abajo del origen
+  '   angulo = 270
+  '   giroX = mousefinalX - 20
+  '   giroY = mousefinalY - 25
+  '
+  ' Else If (mousefinalY - mouseestuvoY < 0) And (mousefinalX - mouseestuvoX = 0) Then 'ordenada Y hacia arriba del origen, en negativo
+  '   angulo = 90
+  '   giroX = mousefinalX - 20
+  '   giroY = mousefinalY - 25
+  '
+  '   'ESTO SE PUEDE HACER TAMBIÉN TOMANDO DIRECTAMENTE EL ÁNGULO
+  ' Else If (mousefinalY - mouseestuvoY < 0) And (mousefinalX - mouseestuvoX > 0) Then 'CUADRANTE 1
+  '   angulo = Deg(ATan((- mousefinalY + mouseestuvoY) / (mousefinalX - mouseestuvoX)))
+  '   triangulo = Image.Load("triangulo.png")
+  '   If (angulo > 85) And (angulo < 90) Then 'Pequeño ajuste por las peculiaridades del triángulo elegido
+  '     mousefinalX = mousefinalX + 1
+  '   Else If (angulo > 40) And (angulo < 85) Then
+  '     mousefinalY = mousefinalY - 8
+  '   Else If (angulo > 20) And (angulo < 40) Then
+  '     mousefinalY = mousefinalY - 3
+  '
+  '   Else If (angulo > 0) And (angulo < 20) Then
+  '     'mousefinalY = mousefinalY +2
+  '   Endif
+  '
+  '   giroX = mousefinalX - 25
+  '   giroY = mousefinalY - 25
+  '
+  ' Else If (mousefinalY - mouseestuvoY < 0) And (mousefinalX - mouseestuvoX < 0) Then 'CUADRANTE 2
+  '   angulo = Deg(ATan((- mousefinalY + mouseestuvoY) / (mousefinalX - mouseestuvoX)))
+  '   angulo = angulo + 180
+  '
+  '   giroX = mousefinalX - 25
+  '   giroY = mousefinalY - 25
+  '
+  ' Else If (mousefinalY - mouseestuvoY > 0) And (mousefinalX - mouseestuvoX < 0) Then 'CUADRANTE 3
+  '   angulo = Deg(ATan((- mousefinalY + mouseestuvoY) / (mousefinalX - mouseestuvoX)))
+  '   angulo = angulo + 180
+  '
+  '   giroX = mousefinalX - 25
+  '   giroY = mousefinalY - 25
+  '
+  ' Else If (mousefinalY - mouseestuvoY > 0) And (mousefinalX - mouseestuvoX > 0) Then 'CUADRANTE 4
+  '   angulo = Deg(ATan((- mousefinalY + mouseestuvoY) / (mousefinalX - mouseestuvoX)))
+  '   giroX = mousefinalX - 25
+  '   giroY = mousefinalY - 25
+  '
+  ' Else If (mousefinalX - mouseestuvoX = 0) Then
+  '   'debug "división por cero"
+  '
+  ' Else
+  '   angulo = Deg(ATan((- mousefinalY + mouseestuvoY) / (mousefinalX - mouseestuvoX)))
+  ' Endif
+
+End
+
+Public Sub ptoDiseno(x As Integer, y As Integer)
+
+  mousefinalX = x
+  mousefinalY = y
+
+End
+
+Public Sub desplaza(x As Integer, y As Integer)
+
+  'Dim w, h As Integer
+
+  mouseinicioX += x - dx
+  mouseinicioY += y - dy
+
+  mousefinalX += x - dx
+  mousefinaly += y - dy
+
+  p1 = EcuacionesRecta.PtoFlecha1(25, 35, mouseinicioX, mouseinicioY, mousefinalX, mousefinaly)
+  p2 = EcuacionesRecta.PtoFlecha2(25, 35, mouseinicioX, mouseinicioY, mousefinalX, mousefinaly) '
+
+  ' giroX += x - dx
+  ' giroY += y - dy
+  ' '  mousefinalX = mouseinicioX + 10 'conservo los anchos y largo anteriores
+  ' h = mousefinalY
+
+End
+
+Public Sub getx() As Integer
+
+  Return dx ' mouseinicioX
+
+End
+
+Public Sub gety() As Integer
+
+  Return dy 'mouseinicioY
+
+End
+
+'---------------------------------------------
+' mostrar propiedades
+' ---------------------------------------------
+Public Sub mostrarpropiedades()
+
+  Dim pro As New FormCuadroPropiedades
+
+  pro.mostrar(Me, ["Grosor_Linea", "Color_Linea|colorbutton"])
+
+End
+
+'----------------------------------
+'propiedades editables
+'----------------------------------
+Property Color_Linea As Integer 'color de la linea
+Property Grosor_Linea As Integer 'grosor de la linea
+
+Private Function Color_Linea_Read() As Integer
+
+  Return Super.getColor()
+
+End
+
+Private Sub Color_Linea_Write(Value As Integer)
+
+  Super.SetColor(value)
+
+End
+
+Private Function Grosor_Linea_Read() As Integer
+
+  Return Super.getTamano()
+
+End
+
+Private Sub Grosor_Linea_Write(Value As Integer)
+
+  Super.Settamano(value)
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|flecha|"
+  contenido &= Str$(Super.getTamano()) & "|"
+  contenido &= Str$(Super.getColor()) & "|"
+  contenido &= Str$(mouseinicioX) & "|"
+  contenido &= Str$(mouseinicioY) & "|"
+  contenido &= Str$(mousefinalX) & "|"
+  contenido &= Str$(mousefinalY) & "|"
+  contenido &= Str$(angulo) & "|"
+  contenido &= Str$(giroX) & "|"
+  contenido &= Str$(giroY) & "|"
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  If Arraylinea[1] = "flecha" Then
+    Super.Settamano(Val(Arraylinea[2]))
+    Super.SetColor(Val(Arraylinea[3]))
+    mouseinicioX = Val(Arraylinea[4])
+    mouseinicioY = Val(Arraylinea[5])
+    mousefinalX = Val(Arraylinea[6])
+    mousefinalY = Val(Arraylinea[7])
+    angulo = Val(Arraylinea[8])
+    giroX = Val(Arraylinea[9])
+    giroY = Val(Arraylinea[10])
+    puntofin = True
+    Return True
+  Else
+    Return False
+
+  Endif
+
+End

@@ -1,0 +1,121 @@
+' Gambas class file
+
+Create Private
+Create Static
+Export
+
+Public Const _Name As String = ""
+
+Property Read Name As String
+Property Read Failed As Boolean
+Property Read {Error} As Boolean
+Property Read FailureReason As String
+Property Read FailureStackTrace As String[]
+
+Private $bFailed As Boolean = False
+Private $bError As Boolean = False
+Private $sReason As String
+Private $aStackTrace As New String[]
+
+Public Sub Start()
+  
+  Try Me._Run()
+  If Error Then 
+    If Not $bFailed Then $bError = True 'Failed because of an unknown error, not because of a failed assert
+    $bFailed = True
+    $sReason = Error.Text
+    $aStackTrace = CleanupStackTrace(Error.BackTrace)
+  Else
+    $bFailed = False
+  Endif
+  
+End
+
+Public Sub _Run()
+  
+  
+  
+End
+
+Public Sub Fail(Optional failureText As String)
+  
+  If Not failureText Then failureText = ("Assertion failed.")
+  $bFailed = True
+  Error.Raise(failureText)
+  
+End
+
+Public Sub Assert(expression As Boolean, Optional failureText As String)
+  If Not expression Then Fail(failureText)
+End
+
+Public Sub AssertFalse(expression As Boolean, Optional failureText As String)
+  Assert(Not expression, failureText)
+End
+
+Public Sub AssertEquals(arg1 As Variant, arg2 As Variant, Optional failureText As String)
+  Assert(arg1 = arg2, failureText)
+End
+
+Public Sub AssertNotEquals(arg1 As Variant, arg2 As Variant, Optional failureText As String)
+  Assert(arg1 <> arg2, failureText)
+End
+
+Public Sub AssertSame(obj1 As Object, obj2 As Object, Optional failureText As String)
+  Assert(Object.Address(obj1) = Object.Address(obj2), failureText)
+End
+
+Public Sub AssertNotSame(obj1 As Object, obj2 As Object, Optional failureText As String)
+  Assert(Object.Address(obj1) <> Object.Address(obj2), failureText)
+End
+
+Public Sub AssertNull(arg1 As Variant, Optional failureText As String)
+  Assert(arg1 = Null, failureText)
+End
+
+Public Sub AssertNotNull(arg1 As Variant, Optional failureText As String)
+  Assert(arg1 <> Null, failureText)
+End
+
+Static Private $aUnitTestClassNames As String[] = ["UnitTest", "UnitTestTask"]
+
+Private Sub CleanupStackTrace(aStackTrace As String[]) As String[]
+  
+  Dim aNewStackTrace As New String[]
+  Dim sLine, sClassName As String
+  
+  For Each sLine In aStackTrace
+    sClassName = Scan(sLine, "*.*")[0]
+    If Not $aUnitTestClassNames.Exist(sClassName) Then
+      aNewStackTrace.Add(sLine)
+    Endif
+  Next
+  
+  Return aNewStackTrace
+  
+End
+
+' ===== Properties =====
+
+Private Function Failed_Read() As Boolean
+  Return $bFailed
+End
+
+Private Function Error_Read() As Boolean
+  Return $bError
+End
+
+Private Function FailureReason_Read() As String
+  Return $sReason
+End
+
+Private Function FailureStackTrace_Read() As String[]
+  Return $aStackTrace
+End
+
+Private Function Name_Read() As String
+
+  If Me._Name Then Return _Name
+  Return Object.Class(Me).Name
+
+End

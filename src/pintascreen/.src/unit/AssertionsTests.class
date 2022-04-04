@@ -1,0 +1,35 @@
+' Gambas class file
+
+'-------------------------------------------------------------
+'instrucciones de uso del método Assert y derivados de este...
+'-------------------------------------------------------------
+'
+Inherits UnitTest
+'
+
+Public Sub _Run()
+  '
+  '   'Assert : the given boolean expression has to be true, otherwise the test fails, optionally with the given error text as a reason.
+
+  Me.Assert(True, "Assert failed.")
+  '   'The following tests can be achieved using only Assert(), but they are handy shortcuts
+  Me.AssertFalse(False, "AssertFalse failed.") 'Asserts that the given boolean is false
+  '
+  Me.AssertEquals(2, 2, "AssertEquals failed.") 'Asserts that the two given variants are equal
+  Me.AssertNotEquals(4, 5, "AssertNotEquals failed.") 'Asserts that the two given variants are not equal
+  '
+  Me.AssertNull(Null) 'Asserts that the given variant equals null
+  Me.AssertNotNull("hello", "AssertNotNull failed.") 'Asserts that the given variant does not equals null
+  '
+  Me.AssertSame("cadena", 25, "AssertSame failed.") 'Asserts that the two given objects are the same (i.e. they are at the same address in memory)
+
+  Me.AssertNotSame(Application, System, "AssertNotSame failed.") ' Asserts that the two given objects are not the same
+  '
+  '   'Here is an example to test if an instruction raises an error
+  Try Me.Fail("Failure !") 'Calling the Fail() method is a shorter equivalent to call a false assert
+  If Not Error Then Me.Fail("Fail failed.") 'Note that the Fail() and Asserts methods actually raise an error that immediately stops the test.
+  '
+  '   Print "Test done ! :)" 'Standard output is redirected and can be shown by using the --verbose (-v) option
+  '
+
+End

@@ -1,0 +1,272 @@
+' Gambas class file
+
+Inherits Dibujo
+Private mouseinicioX As Integer
+Private mouseinicioY As Integer
+Private chincheta As Image = Image.Load("chincheta48x48.png")
+Private iconoDesplazar As Image = Image.Load("cambiarSize2.png")
+
+Public TipoImagen As Boolean = False
+Private ptoSeleccionado As Integer '1 es para mover, 2 es para redimensionar
+
+Private ptoDimension As New Point
+Private dx As Integer
+Private dy As Integer
+
+Private ancho As Integer
+Private alto As Integer
+Private imagenruta As String
+
+Private hcambioDimension As Boolean 'controla si una imagen .svg cambio de dimension.
+
+Public Sub _new(...)
+
+  mouseinicioX = param[0]
+  mouseinicioY = param[1]
+  If Param.count > 2 Then
+    ''se trata de una imagen
+    TipoImagen = True
+    ptoDimension.x = Param[2] + param[0]
+    ptoDimension.y = Param[3] + param[1]
+  Endif
+
+End
+
+Public Sub dibuja()
+
+  ' Dim hsvgimage As SvgImage
+  '
+  ' If Upper$(File.Ext(imagenruta)) = Upper$("svg") And hcambioDimension = True Then
+  '   Paint.Begin(hsvgimage)
+  '
+  '   hsvgimage.Save(imagenruta)
+  '
+  '     chincheta = New Image
+  '   chincheta = Image.Load(imagenruta) 'recarga la imagen porque cambio de dimension
+  '   hcambioDimension = False
+  ' Endif
+
+  Paint.DrawImage(chincheta, mouseinicioX - 16, mouseinicioY - 16, ancho, alto)
+
+  Paint.stroke
+  If Super.ptoControl = True Then
+    Paint.DrawImage(Me.iconoMover, mouseinicioX - 16, mouseinicioY - 16)
+    Paint.stroke
+    If TipoImagen = True And Me.tipoIcono = "mover.png" Then
+      Paint.DrawImage(iconoDesplazar, ptoDimension.X - 16, ptoDimension.y - 16)
+
+      Paint.stroke
+    Endif
+  Else
+    ptoSeleccionado = 0 'no hay ningun punto seleccinado
+
+  Endif
+
+End
+
+Public Sub icono(ruta As String)
+
+  If ruta = "" Or ruta = Null Then
+
+  Else
+
+    chincheta = Image.Load(ruta)
+    imagenruta = ruta
+    ancho = chincheta.W
+    alto = chincheta.H
+
+  Endif
+
+End
+
+Public Sub desplaza(x As Integer, y As Integer)
+
+  Select Case ptoSeleccionado
+    Case 1 '"mover"
+      dx = x - mouseinicioX
+      dy = y - mouseinicioY
+
+      mouseinicioX = x
+      mouseinicioY = y
+      '  Print ptoSeleccionado;
+      ptoDimension.x += dx
+      ptoDimension.y += dy
+    Case 2 '"redimensiona"
+
+      ptoDimension.x = x
+      ptoDimension.y = y
+      ancho = ptoDimension.x - mouseinicioX
+      alto = ptoDimension.y - mouseinicioY
+      hcambioDimension = False
+  End Select
+
+End
+
+Public Sub getx() As Integer
+
+  Return (mouseinicioX - 16)
+
+End
+
+Public Sub gety() As Integer
+
+  Return (mouseinicioY - 16)
+
+End
+
+Public Sub getxD() As Integer
+
+  Return (ptoDimension.x - 16)
+
+End
+
+Public Sub getyD() As Integer
+
+  Return (ptoDimension.Y - 16)
+
+End
+
+Public Sub informePtoSeleccionado(...)
+
+  Select Case Param[0]
+    Case "mover"
+      ptoSeleccionado = 1
+      '  Debug ptoSeleccionado
+      '  Debug "Estoy moviendo"
+    Case "redimensiona"
+      ptoSeleccionado = 2
+      hcambioDimension = True
+      '  Debug ptoSeleccionado
+  End Select
+
+End
+
+'---------------------------------------------
+' mostrar propiedades
+' ---------------------------------------------
+Public Sub mostrarpropiedades()
+
+  Dim pro As New FormCuadroPropiedades
+
+  If TipoImagen = True Then
+    pro.mostrar(Me, ["Coord_X", "Coord_Y", "Imagen|OpenFile", "AnchoX", "AltoY"])
+  Else
+    pro.mostrar(Me, ["Coord_X", "Coord_Y"])
+  Endif
+
+End
+
+'----------------------------------
+'propiedades editables
+'----------------------------------
+Property Coord_X As Integer
+Property Coord_Y As Integer
+Property Imagen As String
+Property AnchoX As Integer
+Property AltoY As Integer
+
+Private Function Coord_X_Read() As Integer
+
+  Return mouseinicioX
+
+End
+
+Private Sub Coord_X_Write(Value As Integer)
+
+  mouseinicioX = Value
+  ptoDimension.x = mouseinicioX + ancho
+  ptoDimension.y = mouseinicioY + alto
+
+End
+
+Private Function Coord_Y_Read() As Integer
+
+  Return mouseinicioY
+
+End
+
+Private Sub Coord_Y_Write(Value As Integer)
+
+  mouseinicioY = Value
+  ptoDimension.x = mouseinicioX + ancho
+  ptoDimension.y = mouseinicioY + alto
+
+End
+
+Private Function Imagen_Read() As String
+
+  Return imagenruta
+
+End
+
+Private Sub Imagen_Write(Value As String)
+
+  icono(value)
+  ptoDimension.x = mouseinicioX + ancho
+  ptoDimension.y = mouseinicioY + alto
+
+End
+
+Private Function AnchoX_Read() As Integer
+
+  Return ancho
+
+End
+
+Private Sub AnchoX_Write(Value As Integer)
+
+  ancho = value
+
+End
+
+Private Function AltoY_Read() As Integer
+
+  Return alto
+
+End
+
+Private Sub AltoY_Write(Value As Integer)
+
+  alto = value
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|chincheta|"
+  contenido &= File.Name(imagenruta) & "|"
+  contenido &= Str$(mouseinicioX) & "|"
+  contenido &= Str$(mouseinicioY) & "|"
+  contenido &= Str$(ancho) & "|"
+  contenido &= Str$(alto) & "|"
+  contenido &= Str$(TipoImagen) & "|"
+  contenido &= Str$(ptoDimension.x) & "|"
+  contenido &= Str$(ptoDimension.y) & "|"
+
+  'guardo la imagen en el directorio de trabajo
+  Try Copy imagenruta To user.home & "/.config/pintascreen/pintascreenGuarda/" & File.Name(imagenruta)
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  If Arraylinea[1] = "chincheta" Then
+    imagenruta = Arraylinea[2]
+    Me.icono(user.home & "/.config/pintascreen/pintascreenAbrir/" & imagenruta) 'comprobar realmente la ruta guardada....
+    mouseinicioX = Val(Arraylinea[3])
+    mouseinicioY = Val(Arraylinea[4])
+    ancho = Val(Arraylinea[5])
+    alto = Val(Arraylinea[6])
+    TipoImagen = Val(Arraylinea[7])
+    ptoDimension.x = Val(Arraylinea[8])
+    ptoDimension.y = Val(Arraylinea[9])
+    Return True
+  Else
+    Return False
+
+  Endif
+
+End

@@ -1,0 +1,17 @@
+' Gambas class file
+
+Public Sub Button1_Click()
+
+  ModuleSonido.SonidoCaptura()
+
+  Me.close
+
+End
+
+Public Sub Form_Show()
+
+  Me.x = Screen.w - Me.W
+
+  Me.y = Screen.h - Me.h
+
+End

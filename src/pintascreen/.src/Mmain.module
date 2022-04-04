@@ -1,0 +1,75 @@
+' Gambas module file
+
+Public Sub Main()
+
+  Dim fprincipal As New FMain
+  Dim v As Variant[]
+  Dim argumento As String
+  Dim lista As New String[]
+
+  ' Print "Analizo argumentos:"
+  For Each argumento In Application.Args
+    'añadimos todos los argumentos a un array de cadenas
+    lista.add(argumento)
+  Next
+
+  If lista.Exist("-B") Or lista.Exist("-b") Then
+    fprincipal.desactivarBotonera()
+  Endif
+
+  If lista.Exist("-e") Or lista.Exist("-E") Then
+    fprincipal.sinespera()
+  Endif
+
+  If lista.Exist("-h") Or lista.Exist("-H") Then
+    Print "----------------------------------------"
+    Print "Parámetros en la linea de comandos:"
+    Print "----------------------------------------"
+    Print "-h: ayuda de comandos"
+    Print "-b o -B: desactiva botonera inicial"
+    Print "-e o -E: se inicia inmediatamente sin esperar 1 segundo, util para que no salga el menu "
+    Print
+    Print "-----------------------------"
+    Print "Teclas de la aplicación:"
+    Print "-----------------------------"
+    Print "F1: Ayuda (es esta pantalla)"
+    Print "A : Dibujar a mano alzada"
+    Print "B : Muestra u oculta la barra de herramientas"
+    Print "C : Coloca una chincheta en la posición del puntero del ratón"
+    Print "E : Dibujar elipse"
+    Print "F : Dibujar flecha en linea recta"
+    Print "G : Dibujar a mano alzada terminando con una flecha"
+    Print "L : Dibujar linea"
+    Print "P : Aclara el fondo del rectángulo que definas"
+    Print "M : Marcador subrayador"
+    Print "N : Numerador"
+    Print "R : Dibujar rectángulo"
+    Print "S : Captura la pantalla para guardarla en un archivo de imagen .jpg"
+    Print "Z : Captura una zona de la pantalla para guardarla en un archivo de image .jpg"
+    Print "T : Escribe texto"
+    Print "Y : Edita texto, seleccionando la primera letra en la pantalla."
+    Print "Tecla backspace o Retroceso :  Elimina el último elemento dibujado "
+    Print "Tecla Supr :  Borrado de los elementos dibujados"
+    Print "Tecla Esc : Sale de la aplicación."
+
+  Else
+
+    v = [True]
+    fprincipal.VentanaDibujando = v
+    While v[0] = True
+      Wait 0.05
+      fprincipal.ShowModal()
+
+      If v[0] = False Then
+        Break
+      Else
+        formularioAndando.ShowModal()
+        fprincipal = New FMain
+        fprincipal.VentanaDibujando = v
+        fprincipal.sinespera()
+      Endif
+    Wend
+
+  Endif
+
+End

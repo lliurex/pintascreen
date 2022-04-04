@@ -1,0 +1,264 @@
+' Gambas class file
+
+Public Principal As Fmain
+
+Public listaFiguras As Dibujo[] 'lista de figuras que tiene la captura actual...
+
+Private RealizadocargadosBocadillo As Boolean = False
+
+Public Sub Form_Open()
+
+  cargaIconos()
+
+  Labelversion.text = "version " & Application.Version
+  SpinBoxLetra.value = ModuleComun.IncrementoLetra
+  SpinBoxSubrayador.Value = ModuleComun.IncrementoMarcador
+  TextBoxDispositivo.text = settings["Webcam", "/dev/video0"]
+  ValueBoxRefrescoWebcam.Value = Settings["RefrescoWebcam", 100]
+  CheckBoxReinicioContador.value = Settings["ReinicioContador", True]
+  SpinBoxTamanoLetraNumerador.value = Settings["TamanoLetraNumerador", 11]
+  SpinBoxDiametroNumerador.Value = Settings["DiametroNumerador", 25]
+  ButtonBoxDirectorioAbrir.text = User.Home
+  ModuleAbrirGuardar.cargaArchivos(ListBoxFicheros, ButtonBoxDirectorioAbrir.text)
+  PictureBoxPrevisualizacion.Picture = Picture["fondo.png"]
+  buttonBoxSeleccioneRutaGuardar.text = Settings["RutaGuardarArchivo", User.home]
+  ComboBoxPreguntarBorrado.text = Settings["PreguntarBorrado", "Si"]
+  Me.center
+
+End
+
+Public Sub ButtonAceptar_Click()
+
+  'recorre el array de objetos
+  'dependiendo de la clase de objeto, aplicar elcolor elegido...
+  ' settings["Webcam"] = TextBoxDispositivo.text
+  ModuleComun.IncrementoLetra = SpinBoxLetra.value
+  ModuleComun.IncrementoMarcador = SpinBoxSubrayador.Value
+  ' FMain.dipositivoWebCam = TextBoxDispositivo.text
+  Settings["ReinicioContador"] = CheckBoxReinicioContador.value
+  Settings["TamanoLetraNumerador"] = SpinBoxTamanoLetraNumerador.value
+  Settings["DiametroNumerador"] = SpinBoxDiametroNumerador.Value
+  Settings["PreguntarBorrado"] = ComboBoxPreguntarBorrado.text
+  ModuleComun.PreguntarBorrado = ComboBoxPreguntarBorrado.text
+  'guardo las variables
+  Settings.Save()
+  Me.close
+
+End
+
+Public Sub ButtonCancelar_Click()
+
+  Me.close
+
+End
+
+Public Sub Labelversion_MouseDown()
+
+End
+
+Public Sub Label1_MouseDown()
+
+  Desktop.Open(Label1.text)
+
+End
+
+Public Sub cargaIconos()
+
+  Dim btmp As Button
+  Dim a As Integer
+  Dim ancho As Integer
+
+  For a = 1 To 17
+
+    btmp = New Button(VBox1) As "ControlesChincheta"
+    btmp.x = 0
+    btmp.y = 0
+    btmp.w = 48
+    btmp.h = 48
+    btmp.Picture = Picture.Load("chinchetas/" & Right$("0" & Str$(a), 2) & ".png")
+    ancho += 48
+    btmp.tag = "chinchetas/" & Right$("0" & Str$(a), 2) & ".png"
+  Next
+
+  VBox1.w = ancho
+
+End
+
+Public Sub cargaBocadillos()
+
+  Dim nombrearchivo As String
+  Dim btmp As Button
+
+  Dim ancho As Integer
+
+  HPanelBocadillos.Visible = False
+  For Each nombrearchivo In Dir("bocadillos", "*.png", GB.File).Sort()
+    btmp = New Button(HPanelBocadillos) As "ControlesBocadillos"
+    btmp.x = 0
+    btmp.y = 0
+    btmp.w = 49
+    btmp.h = 49
+    btmp.Picture = Picture.Load("bocadillos/" & nombrearchivo)
+    btmp.Tooltip = nombrearchivo
+    ancho += 50
+    btmp.tag = "bocadillos" &/ Replace$(nombrearchivo, ".png", ".svg")
+
+  Next
+
+End
+
+Public Sub controlesChincheta_Click()
+
+  Select Case Last.tag
+    Case "chinchetas/02.png" 'carpeta para elegir cualquier imagen
+      If Not Dialog.OpenFile() Then
+        ModuleComun.ChinchetaRuta = Dialog.Path
+      Else
+        Return
+      Endif
+    Case "chinchetas/03.png" 'bocadillos
+      If HPanelBocadillos.Visible Then
+        HPanelBocadillos.Visible = False
+        Return
+      Else
+
+        If Not RealizadocargadosBocadillo Then
+          cargaBocadillos()
+          RealizadocargadosBocadillo = True
+        Endif
+        HPanelBocadillos.Visible = True
+        Return
+
+      Endif
+
+    Default
+      ModuleComun.ChinchetaRuta = Last.tag
+
+  End Select
+
+  Me.close
+
+End
+
+Public Sub ControlesBocadillos_Click()
+
+  ModuleComun.ChinchetaRuta = Last.tag
+  Me.close
+
+End
+
+Public Sub ToolButtonUpdate_Click()
+
+  ModuleUpdate.comprobar("pintaScreen", Application.Version, "http://seguimientodeapuestas.blogspot.com.es/2014/06/pintascreen.html")
+
+End
+
+Public Sub ButtonAceptarCambios_Click()
+
+  settings["Webcam"] = TextBoxDispositivo.text
+  Settings["RefrescoWebcam"] = ValueBoxRefrescoWebcam.Value
+  Principal.dipositivoWebCam = TextBoxDispositivo.text
+  Principal.RefrescoWebcam = ValueBoxRefrescoWebcam.Value
+  Principal.cambiarTimerWebcam(ValueBoxRefrescoWebcam.Value)
+
+End
+
+Public Sub SpinBoxDiametroNumerador_Change()
+
+  Principal.CambiadiametroYTamanoLetra(SpinBoxDiametroNumerador.Value, SpinBoxTamanoLetraNumerador.value)
+
+End
+
+Public Sub SpinBoxTamanoLetraNumerador_Change()
+
+  Principal.CambiadiametroYTamanoLetra(SpinBoxDiametroNumerador.Value, SpinBoxTamanoLetraNumerador.value)
+
+End
+
+Public Sub LabelUrlJsbsan_MouseDown()
+
+  Desktop.Open(LabelUrlJsbsan.text)
+
+End
+'-----------------------------------------------------------
+'abrir archivos existentes de pintascreen
+
+Public Sub ButtonBoxDirectorioAbrir_Click()
+
+  If Not Dialog.SelectDirectory() Then
+    ButtonBoxDirectorioAbrir.text = Dialog.path
+    ModuleAbrirGuardar.cargaArchivos(ListBoxFicheros, ButtonBoxDirectorioAbrir.text)
+    PictureBoxPrevisualizacion.Picture = Picture["fondo.png"]
+  Endif
+
+End
+
+Public Sub ListBoxFicheros_Select()
+
+  '  Print ListBoxFicheros.Id
+  '  Print ListBoxFicheros.Text
+
+  PictureBoxPrevisualizacion.Picture = ModuleAbrirGuardar.cargaImagen(ButtonBoxDirectorioAbrir.text & "/" & ListBoxFicheros.text)
+
+End
+
+Public Sub ButtonAbrirArchivo_Click()
+
+  ModuleAbrirGuardar.abrir(ButtonBoxDirectorioAbrir.text & "/" & ListBoxFicheros.text, listaFiguras)
+  Principal.RefrescarDibujo()
+  Me.Close()
+
+End
+
+'-------------------
+'Guardar Archivo..
+'-------------------
+Public Sub ButtonBoxSeleccioneRutaGuardar_Click()
+
+  If Not Dialog.SelectDirectory() Then
+    ButtonBoxSeleccioneRutaGuardar.text = Dialog.path
+    TextBoxNombreArchivoGuardar.SetFocus()
+  Endif
+
+End
+
+Public Sub ButtonGuardar_Click()
+
+  Dim ruta As String = buttonBoxSeleccioneRutaGuardar.text &/ TextBoxNombreArchivoGuardar.text
+
+  If TextBoxNombreArchivoGuardar.text = "" Then
+    Message.Error("Necesito que escribas el nombre del archivo")
+    Return
+
+  Endif
+
+  If Exist(ruta) Then
+    Message.Error("Existe un archivo con el mismo nombre")
+    Return
+
+  Endif
+
+  Me.w = 0 'oculto el formulario
+  Me.h = 0
+  Principal.desactivarBotonera() 'oculto barra
+
+  Wait 0.05
+  ModuleAbrirGuardar.guardar(ruta, Principal.figuras)
+  Principal.activarBotonera()
+  Me.Close()
+
+End
+
+Public Sub TextBoxNombreArchivoGuardar_KeyPress()
+
+  If Key.enter = Key.code Or Key.code = Key.Return Then
+    ButtonGuardar_Click()
+  Endif
+
+End
+
+Public Sub ButtonTeclas_Click()
+
+  formAyuda.show()
+
+End

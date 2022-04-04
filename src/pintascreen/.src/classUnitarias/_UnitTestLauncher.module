@@ -1,0 +1,218 @@
+' Gambas module file
+
+Export
+Private Const DEFAULT_PARALLEL_TESTS As Integer = 1 ''The default value for *$iParallelTests*
+
+Public Struct UnitTestResult
+  Finished As Boolean
+  Failed As Boolean
+  {Error} As Boolean
+  Reason As String
+  StackTrace As String[]
+  {Output} As String
+  Id As Integer
+End Struct
+
+'Parameters values
+Private $iParallelTests As Integer ''The number of tests that will be run concurrently
+Private $bVerbose As Boolean ''Verbose output. Will show the individual state of every test
+Private $bDebug As Boolean ''Debugging mode. Will show all the found UnitTest classes, as well as task repartition.
+
+Private $aTests As New UnitTest[] ''A list of all the tests that need to be run.
+Private $aTasks As Task[] ''A list of the running tasks (size = *$iParallelTests*)
+Private $aTestsResults As UnitTestResult[] ''A list of the running tests results
+Private $iNextRunningTestId As Integer ''The id of the test that will be run next
+Private $iFailedTestsCount As Integer ''The number of tests that have failed
+
+Public Sub Main()
+
+  If Not Exist(Application.Path &/ ".src") Then
+    Error ("The project must be run from source to start the unit tests.")
+    Return
+  Endif
+
+  ParseArguments()
+  GetTests()
+  StartTests()
+
+End
+
+Private Sub ParseArguments()
+
+  $iParallelTests = DEFAULT_PARALLEL_TESTS
+  $bVerbose = True ' Args.Has("v", "verbose", ("Show verbose output."))
+  $bDebug = True 'Args.Has("d", "debug", ("Show debugging messages. Output may become extremely verbose !"))
+
+End
+
+Private Sub GetTests()
+
+  Dim tClassName As String
+  Dim tClass As Class
+  Dim UnitTestClass As Class = Classes["UnitTest"]
+
+  For Each tClassName In RDir(Application.Path &/ ".src/unit", "*.class", GB.File).Sort()
+    tClassName = Scan(tClassName, "*.class")[0]
+    Try tClass = Class.Load(tClassName)
+    If Error Then Continue
+    If Not IsSubClass(tClass, UnitTestClass) Then Continue
+    $aTests.Add(tClass.AutoCreate())
+    $iParallelTests += 1
+    If $bDebug Then Print Subst(("Found unit test : &1"), tClassName)
+  Next
+
+  If $bDebug Then Print Subst("Found &1 unit tests.", $aTests.Count)
+
+End
+
+Private Sub IsSubClass(tClass As Class, parent As Class) As Boolean
+
+  Dim tParentClass As Class = tClass.Parent
+
+  While tParentClass
+    If tParentClass = parent Then Return True
+    tParentClass = tParentClass.Parent
+  Wend
+
+  Return False
+
+End
+
+Private Sub StartTests()
+
+  Dim i As Integer
+
+  $aTasks = New Task[$iParallelTests]
+  $aTestsResults = New UnitTestResult[$iParallelTests]
+
+  For i = 0 To Min($iParallelTests - 1, $aTests.Max)
+    StartNextTest(i)
+  Next
+
+End
+
+Private Sub StartNextTest(taskId As Integer) As Boolean
+
+  If $iNextRunningTestId > $aTests.Max Then Return False
+
+  $aTasks[taskId] = New UnitTestTask($aTests[$iNextRunningTestId]) As "TestTask"
+  $aTestsResults[taskId] = New UnitTestResult
+  $aTestsResults[taskId].Id = $iNextRunningTestId
+
+  If $bDebug Then Print Subst(("Starting test #&1 on process #&2 ..."), $iNextRunningTestId, taskId)
+  Inc $iNextRunningTestId
+
+  Return True
+
+End
+
+Public Sub TestTask_Read(data As String)
+
+  Dim taskId As Integer = $aTasks.FindByRef(Last)
+  Dim testResult As UnitTestResult = $aTestsResults[taskId]
+
+  Dim sRawResult As String
+  Dim aRawResult As String[]
+
+  If $bDebug Then Print Subst(("Received data from task #&1."), taskId)
+
+  If Not testResult.Finished Then 'Test has not sent its results yet
+    If Trim(data) Begins UnitTestTask.ResultHeader Then
+      'Separating headers from some standard output
+      aRawResult = Scan(data, "*\n*")
+      sRawResult = aRawResult[0]
+      testResult.Output = aRawResult[1]
+      testResult.Finished = True
+      'Parsing result headers
+      aRawResult = Split(sRawResult, UnitTestTask.ResultSeparator)
+      testResult.Failed = CBool(aRawResult[1])
+      testResult.Error = CBool(aRawResult[2])
+      testResult.StackTrace = Split(aRawResult[3], UnitTestTask.StackTraceSeparator)
+      testResult.Reason = aRawResult.Extract(4, aRawResult.Count - 4).Join(UnitTestTask.ResultSeparator)
+    Endif
+  Endif
+
+End
+
+Public Sub TestTask_Error(data As String)
+
+  Dim taskId As Integer = $aTasks.FindByRef(Last)
+  Dim testId As Integer = $aTestsResults[taskId].Id
+  Dim sLine As String
+
+  If $bDebug Then
+    Print Subst(("Received error from test #&1 (task #&2) :"), testId, taskId)
+    For Each sLine In Split(data, "\n")
+      Print "\t";; sLine
+    Next
+  Endif
+
+End
+
+Public Sub TestTask_Kill()
+
+  Dim taskId As Integer = $aTasks.FindByRef(Last)
+  Dim testResult As UnitTestResult = $aTestsResults[taskId]
+  Dim testId As Integer = testResult.Id
+  Dim i As Integer
+  Dim vVal As Variant
+
+  testResult.Finished = True
+  If $bDebug Then Print Subst(("Task #&1 terminated."), taskId)
+
+  Try vVal = Last.Value 'Check if the Task crashed
+  If Error Then
+    Print Subst(("Test #&1 (task #&2) terminated unexpectedly !"), testId, taskId)
+    testResult.Failed = True
+    testResult.Error = True
+    testResult.Reason = Error.Text
+    testResult.StackTrace = Null
+  Endif
+
+  PrintTestResult(testResult)
+
+  If Not StartNextTest(taskId) Then 'We may have finished all the tests
+    $aTasks[taskId] = Null
+    'If there is still a task running, we have not done yet
+    For i = 0 To $aTasks.Max
+      If $aTasks[i] Then Return
+    Next
+    TestsDone()
+  Endif
+
+End
+
+Private Sub PrintTestResult(result As UnitTestResult)
+
+  Dim test As UnitTest = $aTests[result.Id]
+  Dim sLine As String
+
+  If Not result.Failed Then
+    Print "-----";; Subst(("Test &1 (#&2) succeeded"), test.Name, result.Id);; "-----"
+  Else
+    Print "-----";; Subst(("Test &1 (#&2) failed"), test.Name, result.Id);; "-----"
+    If result.Error Then Print Subst(("\t&1 failed due to an unexpected error."), test.Name)
+    Print Subst(("\tReason: &1"), result.Reason)
+    If Not result.StackTrace Then
+      Print Subst(("\tNo stack trace available."))
+    Else
+      Print Subst(("\tStack trace : \n\t\t&1"), result.StackTrace.Join("\n\t\t"))
+    Endif
+    Inc $iFailedTestsCount
+  Endif
+  If $bVerbose Then
+    Print ("\tStandard output :")
+    For Each sLine In Split(result.Output, "\n")
+      Print "\t"; sLine
+    Next
+  Endif
+
+End
+
+Private Sub TestsDone()
+
+  Dim iSuccessfulTestsCount As Integer = $aTests.Count - $iFailedTestsCount
+
+  Print Subst(("&1 tests finished. &2 sucessful tests, &3 failed tests."), $aTests.Count, iSuccessfulTestsCount, $iFailedTestsCount)
+
+End

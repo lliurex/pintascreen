@@ -1,0 +1,8 @@
+' Gambas module file
+
+Public Sub SonidoCaptura()
+
+  Music.load("camara_5.mp3")
+  Music.play
+
+End

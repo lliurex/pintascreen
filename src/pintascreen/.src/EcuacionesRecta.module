@@ -1,0 +1,77 @@
+' Gambas module file
+
+Public Struct EcuacionRecta
+  'A x + B y + C = 0
+  A As Float
+  B As Float
+  C As Float
+
+End Struct
+
+Public Function pendienteMDosPuntos(x1 As Float, y1 As Float, x2 As Float, y2 As Float) As Float
+
+  Return ((y2 - y1) / (x2 - x1))
+
+End
+
+Public Function pendienteEcuacionRecta(MiEcuacionRecta As EcuacionRecta) As Float
+
+  Return -(MiEcuacionRecta.A / miEcuacionRecta.B)
+
+End
+
+Public Sub EcuacionGeneralDosPuntos(x1 As Float, y1 As Float, x2 As Float, y2 As Float) As EcuacionRecta
+
+  Dim ecu As New EcuacionRecta
+
+  ecu.A = y2 - y1
+  ecu.B = -(x2 - x1)
+  ecu.C = -(x1 * ecu.A - y1 * ecu.B)
+
+  Return ecu
+
+End
+
+Public Sub distanciaEntreDosPuntos(x1 As Float, y1 As Float, x2 As Float, y2 As Float) As Float
+
+  Return (((x2 - x1) ^ 2 + (y2 - y1) ^ 2) ^ (1 / 2))
+
+End
+
+Public Sub PtoFlecha1(Angulo As Integer, Dist As Integer, xinicial As Integer, yinicial As Integer, xfinal As Integer, yfinal As Integer) As Point
+
+  Dim angulointerior As Float
+  Dim angulob As Float
+  Dim pfinal As New Point
+
+  'calcular el angulo de la recta actual
+  '
+  anguloB = Deg(Ang(xfinal - xinicial, yfinal - yinicial)) 'en grados
+  angulointerior = (180 - Angulo - anguloB)
+
+  pfinal.x = dist * Cos(Rad(angulointerior)) + xfinal
+
+  pfinal.y = -dist * Sin(Rad(angulointerior)) + yfinal
+
+  Return pfinal
+
+End
+
+Public Sub PtoFlecha2(Angulo As Integer, Dist As Integer, xinicial As Integer, yinicial As Integer, xfinal As Integer, yfinal As Integer) As Point
+
+  Dim angulointerior As Float
+  Dim angulob As Float
+  Dim pfinal As New Point
+
+  'calcular el angulo de la recta actual
+  '
+  anguloB = Deg(Ang(xfinal - xinicial, yfinal - yinicial)) 'en grados
+  angulointerior = (180 + Angulo - anguloB)
+
+  pfinal.x = dist * Cos(Rad(angulointerior)) + xfinal
+
+  pfinal.y = -dist * Sin(Rad(angulointerior)) + yfinal
+
+  Return pfinal
+
+End

@@ -1,0 +1,10 @@
+' Gambas class file
+
+Inherits UnitTest
+
+Public Sub _Run()
+  
+  Print "I'm good at math."
+  Me.Assert(3 * 3 = 6)
+  
+End

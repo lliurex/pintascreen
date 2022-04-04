@@ -1,0 +1,281 @@
+' Gambas class file
+
+'/ * *
+'*
+'* @ package TecladoVirtual.class
+'* @ copyright 2011 Luis Jorge Martin Aznar
+'* @ version 1.0
+'* @ review 1
+'* @ author Luis Jorge Martin Aznar
+'* @ e-mail ljma@telefonica.net
+'* creacion = 15/09/2011
+'* modificacion = 15/09/2011
+'*
+'* This file IS part OF TPV-ERP ©.
+'*
+'* This program IS free software: you can redistribute it AND / OR modify
+'* it under the terms OF the GNU General PUBLIC License AS published by
+'* the Free Software Foundation, either version 3 OF the License.
+'*
+'* This program IS distributed IN the hope that it will be useful,
+'* but WITHOUT ANY WARRANTY; without even the implied warranty OF
+'* MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.See the
+'* GNU General PUBLIC License FOR more details.
+'*
+'* You should have received a COPY OF the GNU General PUBLIC License
+'* along WITH this program.IfNOT, see < http: / / www.gnu.org / licenses / > .
+'* /
+
+Inherits UserControl
+Private panel As Panel 'sidepanel
+Property verteclas As Boolean
+Private $verteclas As Boolean
+Property caja_TextBox As Textbox
+Private caja As TextBox
+Private Botones As New Object[]
+Private btn_w As Float = 0
+Private btn_h As Float = 0
+Private mayus As Boolean = False
+
+Public Const _Properties As String = "*,caja_TextBox,verteclas"
+
+Public Sub _new()
+
+  panel = New Panel(Me) 'SidePanel(Me)
+  ' panel.Orientation = 3
+  panel.Border = True
+
+End
+
+Public Sub crea_teclas()
+
+  Dim i As Integer = 0
+  Dim Btn As Button
+  Dim btn_dx As Float = 0
+  Dim btn_dy As Float = 0
+  Dim posx As Float
+  Dim linea2 As String[]
+  Dim linea3 As String[]
+  Dim linea4 As String[]
+
+  linea2 = Split("Q,W,E,R,T,Y,U,I,O,P,+", ",")
+  linea3 = Split("A,S,D,F,G,H,J,K,L,Ñ,'", ",")
+  linea4 = Split("Z+X+C+V+B+N+M+;+,+.+-", "+")
+
+  btn_h = Me.Height / 5.5
+  btn_w = (Me.Width / 13.5)
+
+  'quinta
+  btn_dy = btn_h * 4
+  posx = (btn_w * 12)
+  btn_dx = posx
+  Btn = New Button(panel) As "Boton"
+  Btn.Font.Size = (btn_h / 4)
+  Btn.W = btn_w
+  Btn.H = btn_h
+  Btn.Left = btn_dx
+  Btn.top = btn_dy
+  Btn.Picture = Picture["control/flecha.png"]
+  Btn.ToolTip = "Mayúsculas"
+  Btn.Tag = "mayu"
+  Botones.Add(Btn)
+
+  Btn = New Button(panel) As "Boton"
+  Btn.Font.Size = (btn_h / 4)
+  Btn.W = btn_w * 9
+  Btn.H = btn_h
+  Btn.Left = btn_w * 3
+  Btn.top = btn_dy
+  Btn.ToolTip = "Espacio"
+  Btn.Tag = "espacio"
+  Botones.Add(Btn)
+
+  Btn = New Button(panel) As "Boton"
+  Btn.Font.Size = (btn_h / 4)
+  Btn.W = btn_w
+  Btn.H = btn_h
+  Btn.Left = btn_w * 2
+  Btn.top = btn_dy
+  Btn.Picture = Picture["control/flecha.png"]
+  Btn.ToolTip = "Mayúsculas"
+  Btn.Tag = "mayu"
+  Botones.Add(Btn)
+
+  'cuarta
+  btn_dy = btn_h * 3
+  posx = (btn_w / 2) + (btn_w * linea4.Count)
+  btn_dx = posx
+  For i = 1 To (linea4.Count)
+    Btn = New Button(panel) As "Boton"
+    Btn.Font.Size = (btn_h / 4)
+    Btn.W = btn_w
+    Btn.H = btn_h
+    Btn.Left = btn_dx
+    Btn.top = btn_dy
+    Btn.ToolTip = linea4[linea4.Count - i]
+    Btn.Tag = LCase(linea4[linea4.Count - i])
+    Btn.Text = linea4[linea4.Count - i]
+    Botones.Add(Btn)
+    btn_dx -= btn_w
+  Next
+
+  'tercera fila
+  btn_dy = btn_h * 2
+  btn_dx = posx - (btn_w / 2)
+  For i = 1 To linea3.Count
+    Btn = New Button(panel) As "Boton"
+    Btn.Font.Size = (btn_h / 4)
+    Btn.W = btn_w
+    Btn.H = btn_h
+    Btn.Left = btn_dx
+    Btn.top = btn_dy
+    Btn.ToolTip = linea3[linea3.Count - i]
+    Btn.Tag = LCase(linea3[linea3.Count - i])
+    Btn.Text = linea3[linea3.Count - i]
+    Botones.Add(Btn)
+    btn_dx -= btn_w
+  Next
+
+  'segunda fila
+  btn_dy = btn_h
+  btn_dx = posx - (btn_w)
+
+  For i = 1 To linea2.Count
+    Btn = New Button(panel) As "Boton"
+    Btn.Font.Size = (btn_h / 4)
+    Btn.W = btn_w
+    Btn.H = btn_h
+    Btn.Left = btn_dx
+    Btn.top = btn_dy
+    Btn.ToolTip = linea2[linea3.Count - i]
+    Btn.Tag = LCase(linea2[linea3.Count - i])
+    Btn.Text = linea2[linea3.Count - i]
+    Botones.Add(Btn)
+    btn_dx -= btn_w
+  Next
+
+  'primera fila
+
+  btn_dy = 0
+
+  Btn = New Button(panel) As "Boton"
+  Btn.W = btn_w
+  Btn.H = btn_h
+  Btn.Left = Me.Width - (btn_w * 1.5)
+  Btn.top = btn_dy
+  Btn.Picture = Picture["control/minus.png"]
+  Btn.ToolTip = "Mayúsculas"
+  Btn.Tag = "minus"
+  Botones.Add(Btn)
+  btn_dx = Btn.Left - (2 * btn_w)
+
+  Btn = New Button(panel) As "Boton"
+  Btn.W = btn_w * 2
+  Btn.H = btn_h
+  Btn.Left = btn_dx
+  Btn.top = btn_dy
+  Btn.Picture = Picture["control/backspace.png"]
+  Btn.ToolTip = "CE"
+  Btn.Tag = "CE"
+  Botones.Add(Btn)
+  btn_dx -= btn_w
+
+  btn_dx = (btn_w * 9)
+  For i = 1 To 10
+    Btn = New Button(panel) As "Boton"
+    Btn.W = btn_w
+    Btn.H = btn_h
+    Btn.Left = btn_dx
+    Btn.top = btn_dy
+
+    Btn.text = Str$(10 - i)
+    Btn.ToolTip = 10 - i
+    Btn.Tag = 10 - i
+    Botones.Add(Btn)
+    btn_dx -= btn_w
+  Next
+
+End
+
+Public Sub Boton_Enter()
+
+  ' If Last.Tag <> "minus" And Last.tag <> "espacio" Then
+  '  If Last.tag <> "CE" Then
+  '   Last.RAISE
+  '    Last.Resize(1.5 * btn_w, 1.5 * btn_h)
+  '  Else
+  '     Last.RAISE
+  '   Last.Resize(2 * btn_w, 1.5 * btn_h)
+  '  Endif
+  ' Endif
+
+End
+
+Public Sub Boton_Leave()
+
+  ' If Last.Tag <> "minus" And Last.tag <> "espacio" Then
+  '    If Last.tag <> "CE" Then
+  '     Last.Resize(btn_w, btn_h)
+  '     Last.Lower
+  '   Else
+  '    Last.Resize(2 * btn_w, btn_h)
+  '     Last.Lower
+  ' Endif
+  ' Endif
+
+End
+
+Public Sub boton_Click()
+
+  Select Case Last.tag
+    Case "CE"
+      If Len(caja.text) > 0 Then
+        caja.Text = Mid$(caja.text, 1, Len(caja.text) - 1)
+      Endif
+    Case "espacio"
+      caja.Text &= " "
+    Case "mayu"
+      If mayus = False Then
+        mayus = True
+        Botones[36].Picture = Picture.Load("control/mayus.png")
+      Else
+        Botones[36].Picture = Picture.Load("control/minus.png")
+        mayus = False
+      Endif
+    Case "minus"
+      'no hacer nada
+      '
+    Case Else
+      If mayus = False Then
+        caja.Text &= Last.tag
+      Else
+        caja.Text &= Last.tooltip
+      Endif
+  End Select
+
+End
+
+Private Function verteclas_Read() As Boolean
+
+  Return $verteclas
+
+End
+
+Private Sub verteclas_Write(Value As Boolean)
+
+  $verteclas = Value
+  crea_teclas()
+
+End
+
+Private Function caja_TextBox_Read() As Textbox
+
+  Return caja
+
+End
+
+Private Sub caja_TextBox_Write(Value As Textbox)
+
+  caja = Value
+
+End

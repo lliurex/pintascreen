@@ -1,0 +1,103 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private mouseinicioX As Integer
+Private mouseinicioY As Integer
+Private mousefinalX As Integer
+Private mousefinalY As Integer
+
+Private puntofin As Boolean = False
+
+Public Sub _new(...)
+
+  mouseinicioX = param[0]
+  mouseinicioY = param[1]
+
+  ''  Paint.LineCap = Paint.LineCapRound
+  '  Paint.LineWidth = 8
+  ''  Paint.Brush = Paint.Color(Color.RGB(255, 0.2 * 255, 0.2 * 255, 0.6 * 255))
+  ''  Paint.MoveTo(mouseinicioX, mouseinicioY)
+  '  Paint.LineTo(mouseinicioX + 1, mouseinicioY + 1)
+  '  Paint.stroke
+
+End
+
+Public Sub dibuja()
+
+  If puntofin = True Then
+
+    comprobarOrdenCoordenadas()
+
+    Paint.LineWidth = 8
+    Paint.Brush = Paint.Color(Color.RGB(255, 0.2 * 255, 0.2 * 255, 0.6 * 255))
+    Paint.FillRect(0, 0, mouseinicioX, Screen.Height, &H796f6f6f) 'Con un poco de transparencia
+    Paint.FillRect(mouseinicioX, 0, Screen.width - mouseinicioX, mouseinicioY, &H796f6f6f)
+    Paint.FillRect(mousefinalX, mouseinicioY, Screen.width - mousefinalX, mousefinalY - mouseinicioY, &H796f6f6f)
+    Paint.FillRect(mouseinicioX, mousefinalY, Screen.width - mouseinicioX, Screen.Height - mousefinalY, &H796f6f6f)
+    Paint.stroke
+  Endif
+
+End
+
+Public Sub ptofinal(x As Integer, y As Integer)
+
+  mousefinalX = x
+  mousefinalY = y
+
+  puntofin = True
+
+End
+
+Private Function comprobarOrdenCoordenadas()
+
+  Dim valortmp As Integer
+
+  If mousefinalX <= mouseinicioX Then
+
+    valortmp = mouseinicioX
+    mouseinicioX = mousefinalX
+    mousefinalX = valortmp
+
+  Endif
+
+  If mousefinalY <= mouseinicioY Then
+
+    valortmp = mouseinicioY
+    mouseinicioY = mousefinalY
+    mousefinalY = valortmp
+
+  Endif
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|Oscurece|"
+  contenido &= Str$(mouseinicioX) & "|"
+  contenido &= Str$(mouseinicioY) & "|"
+  contenido &= Str$(mousefinalX) & "|"
+  contenido &= Str$(mousefinalY) & "|"
+  contenido &= Str$(puntofin) & "|"
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  If Arraylinea[1] = "Oscurece" Then
+    mouseinicioX = Val(Arraylinea[2])
+    mouseinicioY = Val(Arraylinea[3])
+    mousefinalX = Val(Arraylinea[4])
+    mousefinalY = Val(Arraylinea[5])
+    puntofin = Val(Arraylinea[6])
+
+    Return True
+  Else
+    Return False
+
+  Endif
+
+End

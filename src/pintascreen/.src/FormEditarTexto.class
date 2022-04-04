@@ -1,0 +1,55 @@
+' Gambas class file
+
+Public informacion As Variant[]
+Private t As TecladoVirtual
+
+Public Sub Form_Open()
+
+  t = New TecladoVirtual(Me)
+
+End
+
+Public Sub form_Show()
+  ' amplio ancho del teclado
+
+  Dim ancho As Integer = 500
+  Dim largo As Integer = 300  ''
+
+  t.x = TextLabel1.X + 60
+  t.y = TextLabel1.y + 40
+  t.w = ancho
+  t.h = largo
+  t.crea_teclas()
+  t.caja_TextBox = TextBox1
+
+  TextBox1.text = informacion[0]
+  ValueBox1.value = informacion[1]
+
+  ColorButton1.value = informacion[2]
+  TextBox1.SetFocus()
+
+End
+
+Public Sub ButtonAceptar_Click()
+
+  informacion.Clear
+  informacion.Add(TextBox1.text)
+  informacion.Add(ValueBox1.value)
+  informacion.Add(ColorButton1.value)
+  informacion.Add(True)
+
+  Me.Close()
+
+End
+
+Public Sub ButtonCancelar_Click()
+
+  informacion.Clear
+  informacion.Add(TextBox1.text)
+  informacion.Add(ValueBox1.value)
+  informacion.Add(ColorButton1.value)
+  informacion.Add(False)
+
+  Me.Close()
+
+End

@@ -1,0 +1,339 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private dx As Integer
+Private dy As Integer
+Private Dashes As Float[] = [5.0, 1.0, 1.0, 1.0]
+Private mouseinicioX As Integer
+Private mouseinicioY As Integer
+Private mousefinalX As Integer
+Private mousefinalY As Integer
+Private x As Integer
+Private y As Integer
+
+Private puntofin As Boolean = False
+Private dibujaMov As Boolean = True
+
+'cambiar tamaño de forma dinamica
+Private ptoSeleccionado As Integer '1 es para mover, 2 es para redimensionar
+Private iconoDesplazar As Image = Image.Load("cambiarSize2.png")
+Private ptoDimension As New Point
+
+Private hrelleno As Boolean 'false: no se dibuja relleno el rectangulo, true: se dibuja relleno
+Private hsemitransparente As Boolean = True
+
+Public Sub _new(...)
+
+  mouseinicioX = param[0]
+  mouseinicioY = param[1]
+  Super.SetColor(Param[2])
+
+End
+
+Public Sub dibuja()
+
+  If puntofin = True Then
+
+    If Super.getTamano() = 0 Then
+      Paint.LineWidth = 8
+    Else
+      Paint.LineWidth = Me.getTamano()
+    Endif
+
+    If Super.getColor() = 0 Or puntofin = False Then
+
+      Paint.LineWidth = 3
+
+      Paint.LineCap = Paint.LineCapButt
+      Paint.Dash = Dashes
+      Paint.DashOffset = -5
+
+      'Paint.Brush = Paint.Color(Color.RGB(0, 0, 0))
+      Paint.Rectangle(mouseinicioX, mouseinicioY, mousefinalX - mouseinicioX, mousefinalY - mouseinicioY)
+      Return
+
+    Else
+      Paint.LineCap = Paint.LineCapRound
+      Paint.Dash = Null
+      Paint.DashOffset = 0
+      Paint.Brush = Paint.Color(Super.getColor())
+    Endif
+
+    'comprobar si esta activado el relleno
+    If hrelleno = False Then
+      'sin relleno
+      If hsemitransparente Then
+        Paint.Brush = Paint.Color(&H85000000 + Super.getColor())
+        Paint.Rectangle(mouseinicioX, mouseinicioY, mousefinalX - mouseinicioX, mousefinalY - mouseinicioY)
+      Else
+        Paint.Rectangle(mouseinicioX, mouseinicioY, mousefinalX - mouseinicioX, mousefinalY - mouseinicioY)
+      Endif
+
+    Else
+      'rellenar rectangulo version 0.0.55
+      If hsemitransparente Then
+        Paint.FillRect(mouseinicioX, mouseinicioY, mousefinalX - mouseinicioX, mousefinalY - mouseinicioY, &H85000000 + Super.getColor())
+      Else
+        Paint.FillRect(mouseinicioX, mouseinicioY, mousefinalX - mouseinicioX, mousefinalY - mouseinicioY, Super.getColor())
+      Endif
+
+    Endif
+
+    Paint.stroke
+    If Super.ptoControl = True Then
+
+      Paint.DrawImage(Me.iconoMover, mouseinicioX + ((mousefinalX - mouseinicioX) / 2) - 16, mouseinicioY + ((mousefinalY - mouseinicioY) / 2) - 16)
+      dx = mouseinicioX + ((mousefinalX - mouseinicioX) / 2)
+      dy = mouseinicioY + ((mousefinalY - mouseinicioY) / 2)
+      Paint.stroke
+
+      Paint.DrawImage(iconoDesplazar, ptoDimension.X - 16, ptoDimension.y - 16)
+      Paint.stroke
+
+    Endif
+
+  Else
+
+  Endif
+
+End
+
+Public Sub ptofinal(xp As Integer, yp As Integer)
+
+  mousefinalX = xp
+  mousefinalY = yp
+
+  ptoDimension.x = xp
+  ptoDimension.y = yp
+
+  puntofin = True
+
+End
+
+Public Sub dibujandoMoviendote(...)
+
+  ' Dim x, y As Integer
+
+  x = Param[0]
+  y = Param[1]
+
+  dibujaMov = True
+
+End
+'-------------------------------------
+' Para modificar tamaño del rectangulo
+'-------------------------------------
+
+Public Sub getxD() As Integer
+
+  Return (ptoDimension.x - 16)
+
+End
+
+Public Sub getyD() As Integer
+
+  Return (ptoDimension.Y - 16)
+
+End
+
+Public Sub informePtoSeleccionado(...)
+
+  Select Case Param[0]
+    Case "mover"
+      ptoSeleccionado = 1
+
+    Case "redimensiona"
+      ptoSeleccionado = 2
+
+  End Select
+
+End
+
+Public Sub desplaza(xX As Integer, yy As Integer)
+
+  Select Case ptoSeleccionado
+    Case 1 '"mover"
+      mouseinicioX += xX - dx
+      mouseinicioY += yy - dy
+
+      mousefinalX += xx - dx
+      mousefinaly += yy - dy
+
+      ptoDimension.x += xx - dx
+      ptoDimension.y += yy - dy
+
+    Case 2 '"redimensiona"
+
+      mousefinalX = xx '- dx
+      mousefinaly = yy '- dy
+
+      ptoDimension.x = xx ' - dx
+      ptoDimension.y = yy '- dy
+
+  End Select
+
+End
+
+Public Sub getx() As Integer
+
+  Return dx ' mouseinicioX
+
+End
+
+Public Sub gety() As Integer
+
+  Return dy 'mouseinicioY
+
+End
+
+'---------------------------------------------
+' mostrar propiedades
+' ---------------------------------------------
+Public Sub mostrarpropiedades()
+
+  Dim pro As New FormCuadroPropiedades
+
+  pro.mostrar(Me, ["PtoInicio_X", "PtoInicio_Y", "Ancho_X", "Alto_Y", "ColorRect|COLORBUTTON", "Relleno", "SemiTrans"])
+
+End
+
+Property PtoInicio_X As Integer
+Property PtoInicio_Y As Integer
+Property Ancho_X As Integer
+Property Alto_Y As Integer
+
+Property ColorRect As Integer
+
+Property Relleno As Boolean
+Property SemiTrans As Boolean
+
+Private Function PtoInicio_X_Read() As Integer
+
+  Return mouseinicioX
+
+End
+
+Private Sub PtoInicio_X_Write(Value As Integer)
+
+  mouseinicioX = Value
+
+End
+
+Private Function PtoInicio_Y_Read() As Integer
+
+  Return mouseinicioY
+
+End
+
+Private Sub PtoInicio_Y_Write(Value As Integer)
+
+  mouseinicioY = value
+
+End
+
+Private Function ColorRect_Read() As Integer
+
+  Return Super.getColor()
+
+End
+
+Private Sub ColorRect_Write(Value As Integer)
+
+  Super.SetColor(value)
+
+End
+
+Private Function Ancho_X_Read() As Integer
+
+  Return mousefinalX - mouseinicioX
+
+End
+
+Private Sub Ancho_X_Write(Value As Integer)
+
+  mousefinalX = value + mouseinicioX
+  ptoDimension.x = mousefinalX
+
+End
+
+Private Function Alto_Y_Read() As Integer
+
+  Return mousefinalY - mouseinicioY
+
+End
+
+Private Sub Alto_Y_Write(Value As Integer)
+
+  mousefinalY = value + mouseinicioY
+  ptoDimension.y = mousefinalY
+
+End
+
+Private Function Relleno_Read() As Boolean
+
+  Return hrelleno
+
+End
+
+Private Sub Relleno_Write(Value As Boolean)
+
+  hrelleno = value
+
+End
+
+Private Function SemiTrans_Read() As Boolean
+
+  Return hsemitransparente
+
+End
+
+Private Sub SemiTrans_Write(Value As Boolean)
+
+  hsemitransparente = value
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|rectangulo|"
+  contenido &= Str$(Super.getTamano()) & "|"
+  contenido &= Str$(Super.getColor()) & "|"
+  contenido &= Str$(mouseinicioX) & "|"
+  contenido &= Str$(mouseinicioY) & "|"
+  contenido &= Str$(mousefinalX) & "|"
+  contenido &= Str$(mousefinalY) & "|"
+  contenido &= Str$(puntofin) & "|"
+  contenido &= Str$(hrelleno) & "|"
+  contenido &= Str$(hsemitransparente) & "|"
+  contenido &= Str$(ptoDimension.x) & "|"
+  contenido &= Str$(ptoDimension.y) & "|"
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  If Arraylinea[1] = "rectangulo" Then
+    Super.Settamano(Val(Arraylinea[2]))
+    Super.SetColor(Val(Arraylinea[3]))
+    mouseinicioX = Val(Arraylinea[4])
+    mouseinicioY = Val(Arraylinea[5])
+    mousefinalX = Val(Arraylinea[6])
+    mousefinalY = Val(Arraylinea[7])
+
+    puntofin = Val(Arraylinea[8])
+    hrelleno = Val(Arraylinea[9])
+    hsemitransparente = Val(Arraylinea[10])
+    ptoDimension.X = Val(Arraylinea[11])
+    ptoDimension.y = Val(Arraylinea[12])
+
+    Return True
+  Else
+    Return False
+
+  Endif
+
+End

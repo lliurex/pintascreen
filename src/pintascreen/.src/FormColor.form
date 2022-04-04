@@ -1,0 +1,41 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,37,22)
+  { ColorButton1 ColorButton
+    MoveScaled(15,1,13,6)
+  }
+  { Label1 Label
+    MoveScaled(4,2,9,4)
+    Text = ("Color:")
+    Alignment = Align.Right
+  }
+  { SliderOpaco Slider
+    MoveScaled(5,25,30,3)
+    Visible = False
+  }
+  { Label2 Label
+    MoveScaled(2,22,12,4)
+    Visible = False
+    Text = ("Opacidad:")
+  }
+  { ButtonCancelar Button
+    MoveScaled(21,15,13,6)
+    Text = ("Cancelar")
+    Picture = Picture["icon:/22/cancel"]
+  }
+  { ButtonAceptar Button
+    MoveScaled(3,15,14,6)
+    Text = ("Aceptar")
+    Picture = Picture["icon:/32/apply"]
+  }
+  { Label3 Label
+    MoveScaled(4,9,10,4)
+    Text = ("Ancho:")
+    Alignment = Align.Right
+  }
+  { SpinBoxAncho SpinBox
+    MoveScaled(16,8,9,5)
+    MinValue = 1
+  }
+}

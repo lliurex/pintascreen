@@ -1,0 +1,17 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,73,11)
+  Arrangement = Arrange.Fill
+  { Label1 Label
+    MoveScaled(5,0,39,11)
+    Background = &HFFFF00&
+    Expand = True
+    AutoResize = True
+    Text = ("Label1")
+    Alignment = Align.Center
+  }
+  { Timer1 #Timer
+    #MoveScaled(50,2)
+  }
+}

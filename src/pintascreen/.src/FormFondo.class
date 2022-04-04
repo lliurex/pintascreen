@@ -1,0 +1,276 @@
+' Gambas class file
+
+Private hWebcam As VideoDevice
+
+Public dibuja As String
+Public valores As Variant[]
+Private hrutaImagenFondo As String
+
+Public Sub Form_Open()
+
+  TextBoxDispositivo.text = settings["Webcam", "/dev/video0"]
+  RadioButtonImagen_Click()
+  Me.Center
+
+End
+
+Public Sub setfondo(RutaImagenfondo As String)
+
+  hrutaImagenFondo = RutaImagenfondo
+
+End
+
+Public Sub ButtonAceptar_Click()
+
+  If RadioButtonImagen.Value = True Then
+    valores.Add(True)
+    valores.Add("imagen")
+    valores.Add(DrawingAreaPantalla.tag)
+
+    If RadioButtonModoActual.value Then valores.Add("Escalar")
+    If RadioButtonModoSinEscalar.value Then valores.Add("SinEscalar")
+    If RadioButtonModoHorizontal.value Then valores.Add("Horizontal")
+    If RadioButtonModoVertical.value Then valores.Add("Vertical")
+
+  Else
+    If RadioButtonRenglones.value = True Then
+      valores.Add(True)
+      valores.Add("renglones")
+      valores.Add(SpinBoxR.value)
+    Else
+      If RadioButtonCuadricula.value = True Then
+
+        valores.Add(True)
+        valores.Add("cuadricula")
+        valores.Add(SpinBoxRC.Value)
+        valores.Add(SpinBoxHC.Value)
+      Else
+        If RadioButtonEnBlanco.value = True Then
+          valores.Add(True)
+          valores.Add("blanco")
+
+        Else
+          If RadioButtonWebCam.value = True Then
+            valores.Add(True)
+            valores.Add("imagen")
+            Try hWebCam.Save(user.home & "/.config/pintascreen/webcam_shot.png")
+            valores.Add(user.home & "/.config/pintascreen/webcam_shot.png")
+          Else
+            If RadioButtonFondoDinamico.value = True Then
+              valores.Add(True)
+              valores.Add("fondodinamico2pantallas")
+
+            Endif
+          Endif
+
+        Endif
+
+      Endif
+
+    Endif
+
+  Endif
+  Try hWebcam = Null
+  Me.close
+
+End
+
+Public Sub ButtonCancelar_Click()
+
+  Try hWebcam = Null
+  valores.Add(False)
+  Me.close
+
+End
+
+Public Sub RadioButtonRenglones_Click()
+  'lineas horizontales
+
+  Try hWebcam = Null
+  PictureBox1.visible = False
+  Timer1.Stop()
+  dibuja = "renglones"
+
+  DrawingAreaPantalla.Refresh()
+
+End
+
+Public Sub DrawingAreaPantalla_Draw()
+
+  Dim hBrush As PaintBrush
+  Dim hImage As Image
+  Dim incrementoh As Integer
+  Dim incrementov As Integer
+  Dim a As Integer
+
+  Select Case dibuja
+
+    Case "renglones"
+      incrementoh = DrawingAreaPantalla.h / (SpinBoxR.value + 1)
+      'repite el alto del drawing entre los renglones que pide...
+      For a = 0 To (SpinBoxR.value + 1)
+        Paint.MoveTo(0, a * incrementoh)
+        Paint.LineTo(DrawingAreaPantalla.w, a * incrementoh)
+        Paint.stroke
+      Next
+      Return
+
+    Case "HorizontalesVerticales"
+
+      incrementoh = DrawingAreaPantalla.h / (SpinBoxRC.value + 1)
+      incrementov = DrawingAreaPantalla.w / (SpinBoxHC.value + 1)
+      'repite el alto del drawing entre los renglones que pide...
+      For a = 0 To (SpinBoxRC.value + 1)
+        Paint.MoveTo(0, a * incrementoh)
+        Paint.LineTo(DrawingAreaPantalla.w, a * incrementoh)
+        Paint.stroke
+      Next
+
+      For a = 0 To (SpinBoxHC.value + 1)
+        Paint.MoveTo(a * incrementov, 0)
+        Paint.LineTo(a * incrementov, DrawingAreaPantalla.h)
+        Paint.stroke
+      Next
+
+      Return
+
+    Case "imagen"
+
+      If DrawingAreaPantalla.tag = "" Then
+        hImage = Image.Load(hrutaImagenFondo)
+      Else
+        hImage = Image.Load(DrawingAreaPantalla.tag)
+      Endif
+      hBrush = Paint.Image(hImage)
+      hBrush.Scale(DrawingAreaPantalla.w / hImage.W, DrawingAreaPantalla.H / hImage.H)
+      '  hBrush.Scale(hImage.W, hImage.H)
+      Paint.Brush = hBrush
+      Paint.Rectangle(0, 0, DrawingAreaPantalla.w, DrawingAreaPantalla.H)
+      Paint.Fill
+    Case "fondoEnBlanco"
+      Paint.FillRect(0, 0, DrawingAreaPantalla.w, DrawingAreaPantalla.H, Color.white)
+      Paint.Stroke
+  End Select
+
+End
+
+Public Sub RadioButtonCuadricula_Click()
+
+  Try hWebcam = Null
+  PictureBox1.visible = False
+  'lineas horizontales
+  Timer1.Stop()
+  dibuja = "HorizontalesVerticales"
+
+  DrawingAreaPantalla.Refresh()
+
+End
+
+Public Sub SpinBoxR_Change()
+
+  DrawingAreaPantalla.Refresh()
+
+End
+
+Public Sub SpinBoxRC_Change()
+
+  DrawingAreaPantalla.Refresh()
+
+End
+
+Public Sub SpinBoxHC_Change()
+
+  DrawingAreaPantalla.Refresh()
+
+End
+
+Public Sub RadioButtonImagen_Click()
+
+  Try hWebcam = Null
+  PictureBox1.visible = False
+  Timer1.Stop()
+  dibuja = "imagen"
+  DrawingAreaPantalla.Refresh()
+
+End
+
+Public Sub ButtonCarpeta_Click()
+
+  Dim rutaImagenes As String
+
+  rutaImagenes = File.Load(User.home & "/.config/user-dirs.dirs")
+  rutaImagenes = ModuleComun.Between(rutaImagenes, "XDG_PICTURES_DIR=\"$HOME/", "\"")
+  Print rutaImagenes
+  Dialog.Filter = ["*.png;*.jpg;*.jpeg", "ficheros de imagenes"]
+  Dialog.Path = User.home & "/" & rutaImagenes
+  If Dialog.OpenFile() Then
+    'cancelado...
+  Else
+    DrawingAreaPantalla.tag = Dialog.Path
+    DrawingAreaPantalla.Refresh()
+  Endif
+
+End
+
+Public Sub RadioButtonWebCam_Click()
+
+  PictureBox1.visible = True
+  Try hWebCam = New VideoDevice(TextBoxDispositivo.Text)
+  If Error Then
+    Message.Info(("Problemas para obtener la imagen de la camara web,") & gb.CrLf & (" pruebe con otra ruta de dispositivo /dev/video1, /dev/video2,"))
+    RadioButtonImagen.value = True '''NOTE: corregido 0.0.55: para que se cambia a radiobutton y no de error permanecer en el radioButtonWebCam cuando falla el dispositivo"
+  Else
+    Timer1.Delay = 100
+    Timer1.Start()
+  Endif
+
+End
+
+Public Sub Timer1_Timer()
+
+  Dim hPict As Picture
+  '  Dim img As Image
+
+  Try hPict = hWebCam.Image.Picture
+  If Error Then
+    Message.Info(("Problemas para obtener la imagen de la camara web,") & gb.CrLf & (" pruebe con otra ruta de dispositivo /dev/video1, /dev/video2,"))
+    timer.Stop()
+  Else
+    PictureBox1.Picture = hpict
+  Endif
+
+End
+
+Public Sub RadioButtonEnBlanco_Click()
+
+  PictureBox1.visible = False
+  Try hWebcam = Null
+  Timer1.Stop()
+  dibuja = "fondoEnBlanco"
+  DrawingAreaPantalla.Refresh()
+
+End
+
+Public Sub PictureBoxModoActual_MouseDown()
+
+  RadioButtonModoActual.value = True
+
+End
+
+Public Sub PictureBoxModoSinEscalar_MouseDown()
+
+  RadioButtonModoSinEscalar.value = True
+
+End
+
+Public Sub PictureBoxModoVertical_MouseDown()
+
+  RadioButtonModoVertical.value = True
+
+End
+
+Public Sub PictureBoxModoHorizontal_MouseDown()
+
+  RadioButtonModoHorizontal.value = True
+
+End

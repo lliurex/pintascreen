@@ -1,0 +1,212 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private mouseinicioX As Integer
+Private mouseinicioY As Integer
+Private palabra As String
+Private hcolorCirculo As Integer = Color.RGB(128, 128, 255)
+Private tamano As Integer = 30
+
+Property Diametro As Integer ''diametro del circulo
+Private hdiametro As Integer
+
+Private Function Diametro_Read() As Integer
+
+  If hdiametro = 0 Then
+    hdiametro = 25
+  Endif
+  Return hdiametro
+
+End
+
+Private Sub Diametro_Write(Value As Integer)
+
+  hdiametro = Value
+
+End
+
+Public Sub getX() As Integer
+
+  Return mouseinicioX
+
+End
+
+Public Sub getY() As Integer
+
+  Return mouseinicioY
+
+End
+
+Public Sub _new(...)
+
+  mouseinicioX = param[0]
+  mouseinicioY = param[1]
+  palabra = Param[2]
+  hcolorCirculo = Param[3]
+  tamano = Param[4]
+  Me.Diametro = Param[5]
+
+End
+
+Public Sub dibuja()
+
+  Paint.Font.Name = "Sans"
+  Paint.Font.Size = tamano + 3
+  Paint.Font.Bold = False
+
+  Paint.Brush = Paint.Color(&H31000000 + hcolorCirculo) 'Color.RGB(255, 0.2 * 255, 0.2 * 255, 0.1 * 255))
+  Paint.Arc(mouseinicioX, mouseinicioY, Me.Diametro)
+  Paint.Fill
+  If Len(palabra) > 1 Then
+    Paint.MoveTo(mouseinicioX - 10, mouseinicioY + 5)
+  Else
+    Paint.MoveTo(mouseinicioX - 5, mouseinicioY + 5)
+  Endif
+
+  Paint.Text(palabra)
+  Paint.Brush = Paint.Color(Color.Black)
+  Paint.Fill(True)
+  Paint.Brush = Paint.Color(0)
+  Paint.LineWidth = 0.1
+  Paint.Stroke
+  If Super.ptoControl = True Then
+    Paint.DrawImage(Me.iconoMover, mouseinicioX, mouseinicioY)
+    Paint.stroke
+  Endif
+
+End
+
+Public Sub editar()
+
+  Dim datos As New Variant[]
+  'Abro un formuario, y lo lleno con los datos actuales: texto, color texto, tamaño texto
+  'cuando se cierre, asignos a los nuevos valores...
+  'debug "editando..."
+
+  datos = [palabra, tamano, hColorCirculo, False]
+  FormEditarTexto.informacion = datos
+  FormEditarTexto.ShowModal()
+  If datos[3] = True Then
+    palabra = datos[0]
+    tamano = datos[1]
+    hcolorCirculo = datos[2]
+
+  Endif
+
+End
+
+Public Sub setX(a As Integer)
+
+  mouseinicioX = a
+
+End
+
+Public Sub setY(a As Integer)
+
+  mouseinicioY = a
+
+End
+
+Public Sub desplaza(x As Integer, y As Integer)
+
+  mouseinicioX = x - 16
+  mouseinicioY = y - 16
+
+End
+
+Public Sub mostrarpropiedades()
+
+  Dim pro As New FormCuadroPropiedades
+
+  pro.mostrar(Me, ["Diametro", "Color_Circulo|colorbutton", "Centro_X", "Centro_Y", "Numerador"])
+
+End
+
+Property Color_Circulo As Integer
+
+Private Function Color_Circulo_Read() As Integer
+
+  Return hcolorCirculo
+
+End
+
+Private Sub Color_Circulo_Write(Value As Integer)
+
+  hcolorCirculo = value
+
+End
+
+Property Centro_X As Integer
+Property Centro_Y As Integer
+
+Private Function Centro_X_Read() As Integer
+
+  Return mouseinicioX
+
+End
+
+Private Sub Centro_X_Write(Value As Integer)
+
+  mouseinicioX = value
+
+End
+
+Private Function Centro_Y_Read() As Integer
+
+  Return mouseinicioY
+
+End
+
+Private Sub Centro_Y_Write(Value As Integer)
+
+  mouseinicioY = value
+
+End
+
+Property Numerador As Integer
+
+Private Function Numerador_Read() As Integer
+
+  Return palabra
+
+End
+
+Private Sub Numerador_Write(Value As Integer)
+
+  palabra = value
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|Numerador|"
+  contenido &= Str$(tamano) & "|"
+  contenido &= Str$(hcolorCirculo) & "|"
+  contenido &= Str$(mouseinicioX) & "|"
+  contenido &= Str$(mouseinicioY) & "|"
+  contenido &= Str$(Me.Diametro) & "|"
+  contenido &= palabra & "|"
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  If Arraylinea[1] = "Numerador" Then
+    tamano = Val(Arraylinea[2])
+    hcolorCirculo = Val(Arraylinea[3])
+    mouseinicioX = Val(Arraylinea[4])
+    mouseinicioY = Val(Arraylinea[5])
+    Me.Diametro = Val(Arraylinea[6])
+    palabra = arraylinea[7]
+
+    Return True
+  Else
+    Return False
+
+  Endif
+
+End

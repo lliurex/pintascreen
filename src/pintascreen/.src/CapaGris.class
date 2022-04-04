@@ -1,0 +1,52 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private hvisibilidad As Integer
+
+Public Sub actualzaVisibilidad(n As Integer)
+
+  hvisibilidad += n
+  'debug "visibilidad valor: ", hvisibilidad
+
+End
+
+Public Sub _new()
+
+  hvisibilidad = 0
+
+End
+
+Public Sub dibuja()
+
+  If hvisibilidad > 0 Then
+    Paint.FillRect(0, 0, Screen.w, Screen.h, &H796f6f6f) 'Con un poco de transparencia
+    Paint.stroke
+  Endif
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|CapaGris|"
+  contenido &= Str$(hvisibilidad) & "|"
+  contenido &= Str$(Screen.w) & "|"
+  contenido &= Str$(Screen.h) & "|"
+
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  If Arraylinea[1] = "CapaGris" Then
+    hvisibilidad = Val(Arraylinea[2])
+
+    Return True
+  Else
+    Return False
+  Endif
+
+End

@@ -1,0 +1,74 @@
+' Gambas class file
+
+'convert test.svg test.png
+Private imagenExistente As Image
+Private Valorcolor As Integer
+Public nombreTrianguloSVG As String = "triangulo1.svg"
+
+Public Function lee(valor As Integer) As Image
+
+  If Not IsNull(imagenExistente) And Valorcolor = valor Then
+    Return imagenExistente
+  Else
+    Return coloreaTriangulo(valor)
+
+  Endif
+
+End
+
+Private Function coloreaTriangulo(valor As Integer) As Image
+
+  Dim contenido As String
+  Dim i As Image
+
+  ' If Not IsNull(imagenExistente) Then
+  '   Return imagenExistente
+  ' Endif
+
+  If Exist(user.home & "/.config/pintascreen/tri" & Hex(valor) & ".png") Then
+    i = Image.Load(user.home & "/.config/pintascreen/tri" & Hex(valor) & ".png")
+    imagenExistente = i
+    Valorcolor = valor
+    Return i
+  Else
+
+    'lo tengo que crear
+
+    Try Kill user.home & "/.config/pintascreen/triangulo.svg"
+    Try Copy nombreTrianguloSVG To user.home & "/.config/pintascreen/triangulo.svg"
+    contenido = File.Load(user.home & "/.config/pintascreen/triangulo.svg")
+
+    contenido = Replace(contenido, "fill:#ff0000;", "fill:#" & Hex(valor) & ";")
+
+    File.Save(user.home & "/.config/pintascreen/trianguloColoreado.svg", contenido)
+    Try Kill user.home & "/.config/pintascreen/tri.png"
+    Shell "convert " & user.home & "/.config/pintascreen/trianguloColoreado.svg " & user.home & "/.config/pintascreen/tri" & Hex(valor) & ".png" Wait
+
+    If Exist(user.home & "/.config/pintascreen/tri" & Hex(valor) & ".png") Then
+      i = Image.Load(user.home & "/.config/pintascreen/tri" & Hex(valor) & ".png")
+      imagenExistente = i
+      Valorcolor = valor
+      Return i
+      ' Else
+      '   comando = "inkscape -z -e /home/" & user.home & "/.config/pintascreen/trianguloColoreado.svg " &  user.home & "/.config/pintascreen/tri" & Hex(valor) & ".png"
+      '   Shell comando Wait
+    Endif
+
+    If Exist(user.home & "/.config/pintascreen/tri" & Hex(valor) & ".png") Then
+      i = Image.Load(user.home & "/.config/pintascreen/tri" & Hex(valor) & ".png")
+      imagenExistente = i
+      Valorcolor = valor
+      Return i
+    Else
+
+      'ha habido un problema al crear el triangulo de color determinado, pongo el triangulo por defecto
+      i = Image.Load(user.home & "/.config/pintascreen/triangulo.png")
+      imagenExistente = i
+      Valorcolor = valor
+      'asignar imagen si hay problemas al crear el triangulo de color
+    Endif
+
+    Return i
+  Endif
+
+End

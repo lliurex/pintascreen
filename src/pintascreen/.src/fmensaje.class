@@ -1,0 +1,21 @@
+' Gambas class file
+
+Public Sub Form_Open()
+
+  Me.Center()
+  Timer1.Start()
+
+End
+
+Public Sub mostrar(cadena As String)
+
+  Label1.text = CADENA
+  Me.ShowMODAL()
+
+End
+
+Public Sub Timer1_Timer()
+
+  Me.Close()
+
+End

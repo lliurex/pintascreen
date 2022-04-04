@@ -1,0 +1,49 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private mouseinicioX As Integer
+Private mouseinicioY As Integer
+Private mousefinalX As Integer
+Private mousefinalY As Integer
+
+Private puntofin As Boolean = False
+
+Private Dashes As Float[] = [5.0, 1.0, 1.0, 1.0]  'skip
+
+Public Sub _new(...)
+
+  mouseinicioX = param[0]
+  mouseinicioY = param[1]
+
+End
+
+Public Sub dibuja()
+
+  Paint.LineWidth = 8
+  Paint.LineWidth = 1
+
+  Paint.Dash = Dashes
+  Paint.DashOffset = -5
+
+  Paint.Brush = Paint.Color(Color.RGB(0, 0, 0))
+
+  Paint.Rectangle(mouseinicioX, mouseinicioY, mousefinalX - mouseinicioX, mousefinalY - mouseinicioY)
+  Paint.stroke
+
+End
+
+Public Sub ptofinal(xp As Integer, yp As Integer)
+
+  mousefinalX = xp
+  mousefinalY = yp
+
+  puntofin = True
+
+End
+
+Public Sub guardar() As String
+
+  Return "" 'no devuelve el rectangulo punteado
+
+End

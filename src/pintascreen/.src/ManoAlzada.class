@@ -1,0 +1,225 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private ArrayCoord As New Point[]
+
+Private paso As Integer = 5
+Private Dashes As Float[] = [5.0, 1.0, 1.0, 1.0]  'skip
+
+Private dx As Integer
+Private dy As Integer
+Private hrelleno As Boolean = False 'relleno de la superficie creada
+Private hsemitransparente As Boolean = False 'semi transparencia en el color de la linea (version 0.0.55)
+
+Public Sub _new(...)
+
+  Dim puntoTmp As New Point
+
+  puntoTmp.x = param[0]
+  puntoTmp.y = param[1]
+
+  ArrayCoord.Add(puntoTmp)
+
+End
+
+Public Sub dibuja()
+
+  Dim a As Integer
+
+  If Super.getTamano() = 0 Then
+    Paint.LineWidth = 4
+  Else
+    Paint.LineWidth = Super.getTamano()
+  Endif
+
+  If Super.getColor() = 0 Then
+    Paint.LineCap = Paint.LineCapButt
+    Paint.LineWidth = 3
+    Paint.Dash = Dashes
+    Paint.DashOffset = -5
+    Paint.Brush = Paint.Color(Color.RGB(0, 0, 0))
+
+  Else
+    If hsemitransparente Then
+      Paint.Brush = Paint.Color(&H85000000 + Me.getColor())
+    Else
+      Paint.Brush = Paint.Color(Me.getColor())
+    Endif
+
+    Paint.LineCap = Paint.LineCapRound
+    Paint.Dash = Null
+    Paint.DashOffset = 0
+  Endif
+
+  Paint.MoveTo(ArrayCoord[0].x, ArrayCoord[0].y)
+  For a = 1 To ArrayCoord.Max - 1
+    Paint.LineTo(ArrayCoord[a + 1].x, ArrayCoord[a + 1].y)
+  Next
+
+  If hrelleno Then
+    Paint.ClosePath
+    Paint.Fill(True)
+  Endif
+  Paint.stroke
+
+  If Super.ptoControl = True Then
+    Paint.DrawImage(Me.iconoMover, ArrayCoord[ArrayCoord.Max].x, ArrayCoord[ArrayCoord.Max].y)
+    dx = ArrayCoord[ArrayCoord.Max].x + 16
+    dy = ArrayCoord[ArrayCoord.Max].y + 16
+    Paint.stroke
+  Endif
+
+End
+
+Public Sub Add(x As Integer, y As Integer)
+
+  Dim puntoTmp As New Point
+
+  Dim dist As Integer
+
+  If x < 10 And y < 10 Then Return 'corregir error de pizarra
+
+  dist = Sqr((x - ArrayCoord[ArrayCoord.max].x) ^ 2 + (y - ArrayCoord[ArrayCoord.max].y) ^ 2)
+  If dist > paso Then
+    puntoTmp.x = x
+    puntoTmp.y = y
+    ArrayCoord.Add(puntoTmp)
+  Endif
+
+End
+
+Public Sub desplaza(x As Integer, y As Integer)
+
+  Dim a As Integer
+  'Dim w, h As Integer
+
+  For a = 0 To ArrayCoord.Max
+
+    ArrayCoord[a].x += x - dx
+    ArrayCoord[a].y += y - dy
+  Next
+
+End
+
+Public Sub getx() As Integer
+
+  Return dx ' mouseinicioX
+
+End
+
+Public Sub gety() As Integer
+
+  Return dy 'mouseinicioY
+
+End
+
+'---------------------------------------------
+' mostrar propiedades
+' ---------------------------------------------
+Public Sub mostrarpropiedades()
+
+  Dim pro As New FormCuadroPropiedades
+
+  pro.mostrar(Me, ["Grosor_Linea", "Color_Linea|colorbutton", "Relleno", "SemiTrans"])
+
+End
+
+'----------------------------------
+'propiedades editables
+'----------------------------------
+Property Color_Linea As Integer 'color de la linea
+Property Grosor_Linea As Integer 'grosor de la linea
+Property Relleno As Boolean
+Property SemiTrans As Boolean
+
+Private Function Color_Linea_Read() As Integer
+
+  Return Super.getColor()
+
+End
+
+Private Sub Color_Linea_Write(Value As Integer)
+
+  Super.SetColor(value)
+
+End
+
+Private Function Grosor_Linea_Read() As Integer
+
+  Return Super.getTamano()
+
+End
+
+Private Sub Grosor_Linea_Write(Value As Integer)
+
+  Super.Settamano(value)
+
+End
+
+Private Function Relleno_Read() As Boolean
+
+  Return hrelleno
+
+End
+
+Private Sub Relleno_Write(Value As Boolean)
+
+  hrelleno = value
+
+End
+
+Private Function SemiTrans_Read() As Boolean
+
+  Return hsemitransparente
+
+End
+
+Private Sub SemiTrans_Write(Value As Boolean)
+
+  hsemitransparente = value
+
+End
+
+Public Sub guardar() As String
+
+  Dim a As Integer
+  Dim contenido As String
+
+  contenido = "dibujo|ManoAlzada|"
+  contenido &= Str$(Super.getTamano()) & "|"
+  contenido &= Str$(Me.getColor()) & "|"
+  contenido &= Str$(hsemitransparente) & "|"
+  contenido &= Str$(hrelleno) & "|"
+
+  For a = 0 To ArrayCoord.Max
+    contenido &= Str$(ArrayCoord[a].x) & "|"
+    contenido &= Str$(ArrayCoord[a].y) & "|"
+  Next
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  Dim a As Integer
+  Dim pto As Point
+
+  If Arraylinea[1] = "ManoAlzada" Then
+    Super.Settamano(Val(Arraylinea[2]))
+    Super.SetColor(Val(Arraylinea[3]))
+    hrelleno = Val(Arraylinea[4])
+    hsemitransparente = Val(Arraylinea[5])
+    ArrayCoord.Clear()
+    For a = 6 To Arraylinea.max - 1 Step 2
+      pto = New Point(Arraylinea[a], Arraylinea[a + 1])
+      ArrayCoord.Add(pto)
+    Next
+
+    Return True
+  Else
+    Return False
+
+  Endif
+
+End

@@ -1,0 +1,1772 @@
+' Gambas class file
+
+Public VentanaDibujando As Variant[]
+Public count As Integer
+Public mouseinicioX As Integer = -1 'esto es para que no dibujara en el punto inicialmente
+Public mousefinalX As Integer = -1
+Public mouseinicioY As Integer = -1
+Public mousefinalY As Integer = -1
+Public tecla As Variant
+Public dibujando As Boolean
+Public dibuja As String
+Public triangulo As Image
+Public angulo As Float
+Public mouseestuvoX As Integer 'El ratón estuvo aquí en algún momento
+Public mouseestuvoY As Integer
+Public posicionx As New Integer[] 'Array para capturar todas las posiciones x del ratón
+Public posiciony As New Integer[]
+Public fondo As Image
+Public ultimorectangulo As Rectangulo
+Public ultimoOscurece As Oscurece
+Public ultimaFlecha As Flecha
+Public ultmaManoAlzada As ManoAlzada
+Public ultmaManoAlzadaFlecha As ManoAlzadaFlecha
+
+Public ultmaSubrayador As Subrayador
+Public ultimoElipse As Elipse
+Public ultimaLinea As Linea
+Public ultimoAclara As Aclara
+Public botonera As Boolean = False
+Public ultimoText As Texto
+
+Public figuras As New Dibujo[]
+
+Public botoneraActivada As Boolean = True
+
+Public espera As Boolean = True
+
+Public dibujoAnterior As String
+
+Public colorActual As Integer = Color.red
+Public transparenciaActual As Integer = 0
+Public anchoActual As Integer = 8
+
+Public ultimorectZona As RectPunteado
+
+Public ContandorNumerador As Integer 'contador de marcadores con circulo central
+
+Public valorInicioPanelX As Integer
+Public valorInicioPanelY As Integer
+Public valorInicioPanelW As Integer
+Public valorInicioPanelH As Integer
+
+Public DibujaEfecto As String = ""
+Private SpinBoxHC As Integer
+Private SpinBoxR As Integer
+Private spinboxrc As Integer
+Private incrementoh As Integer
+Private incrementov As Integer
+
+Private ultimoDesplazamiento As Dibujo
+
+Private RutaImagenfondo As String
+
+Public t As TecladoVirtual
+
+Private incrementoDesplazamientoXBarra As Integer
+Private incrementoDesplazamientoYBarra As Integer
+
+Private hWebcam As VideoDevice 'para webcam
+
+Public dipositivoWebCam As String = settings["Webcam", "/dev/video0"]
+Public RefrescoWebcam As String = Settings["RefrescoWebcam", 100]
+Private incrementoDesplazamientoXBarraWebcam As Integer
+Private incrementoDesplazamientoYBarraWebcam As Integer
+
+Public diametro As Integer 'del circulo de la herramienta numerador
+Public TamanoLetraNumerador As Integer = 11
+
+Public WebcamRediX As Integer 'para redimensionar la ventana webcam
+Public WebcamRediY As Integer
+
+Private tmpImagen As Image
+
+Private PreguntarBorrado As String = "Si" ''borrado de todo: preguntar o no si se desea hacer
+
+Public Sub _new()
+
+End
+
+'AL ABRIR EL FORMULARIO PRINCIPAL REDIMENSIONA LA CAPA Y CARGA IMAGEN TRANSPARENTE
+Public Sub Form_Open()
+
+  'Dim texto As String
+
+  AnadeCapaGris()
+  SpinBoxAncho.value = anchoActual
+  ColorButtonLineas.value = colorActual
+  ToolButtonParadaStop.tag = "parado"
+  TimerCambioCursorNormal()
+
+  If Not Exist(user.home & "/.config/pintascreen/") Then
+    Try Mkdir user.home & "/.config"
+    Wait 0.05
+    Mkdir user.home & "/.config/pintascreen/"
+    Wait 0.05
+
+  Endif
+
+  Try Copy "blanco.png" To user.home & "/.config/pintascreen/blanco.png"
+  Try Copy "triangulo.png" To user.home & "/.config/pintascreen/triangulo.png"
+
+  If espera = True Then
+    Wait 1 'espero 1 segundo para que de tiempo a quitarse el menu
+  Endif
+
+  'Shell "mkdir -p /home/" & user.home & "/.config/pintascreen/$USER/"
+
+  'Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/$USER/fondo.jpg -q 100" Wait
+  '  Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/fondo.jpg -q 100" Wait
+
+  Desktop.Screenshot(0, 0, Screen.w, Screen.h).Save(user.home & "/.config/pintascreen/fondo.jpg", 100)
+
+  Me.X = 0
+  Me.Y = 0
+  Me.Border = False
+  DrawingArea1.X = 0
+  DrawingArea1.Y = 0
+
+  DrawingArea1.Width = Screen.Width
+  DrawingArea1.Height = Screen.Height
+
+  Me.w = Screen.Width
+  Me.h = Screen.H
+  'Me.Picture = Picture.Load( user.home & "/.config/pintascreen/" & User.Name & "/fondo.jpg")
+  Me.Picture = Picture.Load(user.home & "/.config/pintascreen/fondo.jpg")
+  PictureBoxFondo.w = Screen.w
+  PictureBoxFondo.h = Screen.h
+
+  'PictureBoxFondo.Picture = Picture.Load( user.home & "/.config/pintascreen/" & User.Name & "/fondo.jpg")
+
+  'RutaImagenfondo =  user.home & "/.config/pintascreen/" & User.Name & "/fondo.jpg"
+  RutaImagenfondo = user.home & "/.config/pintascreen/fondo.jpg"
+  VBox1.x = Screen.w - VBox1.W - 30
+  VBox1.y = Screen.h / 2 - VBox1.h / 2
+  VBox1.h = Screen.h
+  ToolButtonVentanas.tag = "Vertical" 'estado de la barra de botones
+
+  'Herramienta predefinida para empezar:
+  dibuja = "manoalzada"
+
+  'activo teclado virtual...
+
+  t = New TecladoVirtual(Me)
+
+  Wait 0.05
+  'la primera figura que añado es la capa gris
+
+  'restablezco ultimo color actual
+  colorActual = Settings["ColorActual", Color.red]
+  ColorButtonLineas.Value = colorActual
+  'restablezco ultimo ancho actual.
+
+  anchoActual = Settings["AnchoActual", 8]
+  SpinBoxAncho.value = anchoActual
+
+  'herramienta numerador (tamaño del circulo y letra)
+  TamanoLetraNumerador = Settings["TamanoLetraNumerador", 11]
+  diametro = Settings["DiametroNumerador", 25]
+
+  modulecomun.PreguntarBorrado = Settings["PreguntarBorrado", "Si"]
+
+End
+
+'SALE AL DOBLE CLIC
+Public Sub salir()
+
+  figuras.Clear()
+  VentanaDibujando[0] = False
+  Me.Close()
+
+End
+
+'AL PULSAR UNA TECLA RECOGEMOS SU CÓDIGO
+Public Sub Form_KeyPress()
+
+  tecla = Key.Code
+  Debug "Tecla", tecla
+
+  PulsadoUnaTecla(tecla)
+
+End
+
+Public Sub PulsadoUnaTecla(teclapulsada As Integer)
+
+  Dim figuraExtraida As Dibujo
+  Dim capaGrisTmp As CapaGris
+
+  Dim resp As Integer '' pregunta si borro o no lo dibujado
+
+  If FrameTexto.visible = True Then Return 'no capturar la letra si estamos insertando texto
+
+  Select Case teclapulsada
+    Case 79 'tecla o: toma captura 2 area de escritorio
+      Shell "wmctrl -s 1;scrot " & user.home & "/.config/pintascreen/fondo.jpg -q 100" Wait
+      PictureBoxFondo.Picture = Picture.Load(user.home & "/.config/pintascreen/fondo.jpg")
+      Shell "wmctrl -s 0"
+    Case 78 'Tecla N: numerador...
+      dibuja = "Numerador"
+
+    Case 90 'Tecla Z: captura zona de la pantalla
+      ToolButtonTomarFotoZona_Click()
+    Case 16777216 'tecla ESC
+      'salir de la aplicacion
+      salir()
+
+    Case 83 'tecla S
+      'captura la pantalla
+      ToolButtonTomarFoto_Click()
+
+    Case 66 'tecla B
+      'quitar o poner botonera
+      If botoneraActivada = True Then
+        Me.desactivarBotonera()
+        botoneraActivada = False
+
+      Else
+        Me.ActivarBotonera()
+        botoneraActivada = True
+
+      Endif
+
+    Case 84 'Tecla T
+      dibuja = "texto"
+
+    Case 89 'tecla Y
+      dibuja = "EditaTexto"
+
+    Case 16777264 'pulsación de la tecla F1: ayuda
+      formAyuda.show()
+
+    Case 77 'tecla M -> marcador subrayador
+      dibuja = "subrayar"
+      'debug "subrayando"
+      '------------------------------
+      'Mano alzada sin/con flecha
+      '------------------------------
+    Case 65 'Tecla A -> mano alzada
+      dibuja = "manoalzada"
+    Case 71 'Tecla G: Mano alzada terminado en flecha...
+      dibuja = "manoalzadaFlecha"
+
+    Case 82 'TECLA R -> rectángulo
+      dibuja = "rectanguloInicio"
+
+    Case 76 'TECLA L -> línea
+      dibuja = "lineaInicio"
+
+    Case 70 'TECLA F -> flecha
+      dibuja = "flecha"
+
+    Case 69 'TECLA E -> elipse
+      dibuja = "elipseInicio"
+
+      '-------------------------------
+      'Oscurece o Aclara  -> dejado solo aclara
+      '-------------------------------
+      '  Case 79 'TECLA O -> Oscurece el fondo menos el rectangulo
+      '   dibuja = "oscurece"
+    Case 80 ' Tecla P
+      dibuja = "aclara"
+      DrawingArea1.Refresh()
+
+      '-----------------------------------
+      'borrar elementos del dibujo
+      '-----------------------------------
+      'cambio de teclas....
+    Case 16777223 'tecla suprimir....
+      If modulecomun.PreguntarBorrado = "No" Then
+        'borrar sin preguntar
+        dibujoAnterior = dibuja
+        dibuja = "borrado"
+        ContandorNumerador = 0
+        DrawingArea1.Refresh()
+        Return
+      Endif
+
+      resp = Message.Question(("¿realmente desea borrar todo lo dibujado?"), ("Si, Borralo"), ("No, cancela la orden"))
+      If resp = 1 Then
+        dibujoAnterior = dibuja
+        dibuja = "borrado"
+        ContandorNumerador = 0
+        DrawingArea1.Refresh()
+      Else
+        'cancelado borrado
+        dibujoAnterior = dibuja
+        DrawingArea1.Refresh()
+      Endif
+
+    Case 65288, 16777219 'Tecla backspace -> borrado
+      'borro el ultimo elemento...
+      'figuras.Delete(figuras.count - 1)
+      If figuras.count > 1 Then
+        If Object.Class(figuras[figuras.max]).name = "Numerador" Then
+          ContandorNumerador -= 1
+        Endif
+        '  Print Object.Class(figuras[figuras.max])
+        'debug figuras.Count
+        If Object.Class(figuras[figuras.max]).name = "Aclara" Then
+          figuraExtraida = figuras[0]
+          capagristmp = figuraExtraida
+          capagristmp.actualzaVisibilidad(-1)
+        Endif
+        figuras.Extract(figuras.max)
+
+        DrawingArea1.Refresh()
+      Endif
+    Case 67 'tecla C: dibuja una chincheta...
+      dibuja = "chincheta"
+  End Select
+
+End
+
+'AL PULSAR CON EL RATÓN ESTABLECEMOS ESTADO DE DIBUJO Y TOMAMOS COORDENADAS DE INICIO DEL RATÓN
+Public Sub DrawingArea1_MouseDown()
+
+  Dim fle As Flecha
+  Dim oscureceTmp As Oscurece
+  Dim rectTmp As Rectangulo
+  Dim elipseTmp As Elipse
+  Dim manoalzadaTmp As ManoAlzada
+  Dim subrayadorTmp As Subrayador
+
+  Dim text As Texto
+  Dim ltmp As Linea
+  Dim aclaraTmp As Aclara
+  Dim manoalzadaTmpFlecha As ManoAlzadaFlecha
+  Dim chin As Chincheta
+  Dim capaGrisTmp As CapaGris
+  Dim rectZona As RectPunteado
+  Dim nume As Numerador
+
+  Dim dibujoDesplazamiento As Dibujo
+
+  TimerCambioCursorRojo()
+
+  If dibujando = False Then
+    dibujando = True
+    mouseinicioX = Mouse.X
+    mouseinicioY = Mouse.Y
+    mouseestuvoX = Mouse.X
+    mouseestuvoY = Mouse.Y
+    'debug "Coordenadas al pulsar ratón", mouseinicioX, mouseinicioY
+
+    If dibuja = "TomaCapturaZona" Then
+      rectZona = New RectPunteado(Mouse.x, Mouse.y)
+      ultimorectZona = rectZona
+      figuras.Add(rectZona)
+      dibuja = "TomaCapturaZonaUp"
+
+    Endif
+
+    If dibuja = "EmborronarTomaCapturaZona" Then
+      rectZona = New RectPunteado(Mouse.x, Mouse.y)
+      ultimorectZona = rectZona
+      figuras.Add(rectZona)
+      dibuja = "EmborronarTomaCapturaZonaUp"
+
+    Endif
+
+    If dibuja = "lineaInicio" Then
+      ltmp = New Linea(mouseinicioX, mouseinicioY)
+      ultimaLinea = ltmp
+      figuras.Add(ltmp)
+      dibuja = "linea"
+
+    Endif
+
+    If dibuja = "texto" Then
+      FrameTexto.x = Mouse.X
+      FrameTexto.y = Mouse.y
+      FrameTexto.tag = [Mouse.x, Mouse.y]
+      If ColorButtonColorBotonTexto.Value = 0 Then
+        ColorButtonColorBotonTexto.Value = ColorButtonLineas.value
+      Endif
+      FrameTexto.visible = True
+      'colocar cursor en textarea
+      FrameTexto.Children[4].SetFocus() 'foco en el elmento 4 del frame que es el textarea
+      Return
+    Endif
+
+    If dibuja = "Numerador" Then
+      If Mouse.Left Then
+        'se ha pulsado el boton izquierdo, el contador sigue contando
+        ContandorNumerador += 1
+      Endif
+
+      nume = New Numerador(Mouse.x, Mouse.y, ContandorNumerador, colorActual, TamanoLetraNumerador, Me.diametro)
+      figuras.Add(nume)
+
+    Endif
+
+    If dibuja = "elipseInicio" Then
+      elipseTmp = New Elipse(mouseinicioX, mouseinicioY)
+      ultimoElipse = elipseTmp
+      figuras.add(elipseTmp)
+      dibuja = "elipseUP"
+      Return
+    Endif
+
+    If dibuja = "rectanguloInicio" Then
+      rectTmp = New Rectangulo(mouseinicioX, mouseinicioY, colorActual)
+      ultimorectangulo = rectTmp
+      figuras.Add(rectTmp)
+      'debug "añadido rectangulo inicial"
+      dibuja = "rectanguloUP"
+      Return
+    Endif
+
+    If dibuja = "oscurece" Then
+
+      oscureceTmp = New Oscurece(mouseinicioX, mouseinicioY)
+      ultimoOscurece = oscureceTmp
+      figuras.Add(oscureceTmp)
+      Return
+    Endif
+
+    If dibuja = "aclara" Then
+      ' rectangulo punteado para ver zona que quiere aclarar...
+      rectZona = New RectPunteado(mouseinicioX, mouseinicioY)
+      ultimorectZona = rectZona
+      figuras.Add(rectZona)
+
+      'aclara
+      aclaraTmp = New Aclara(mouseinicioX, mouseinicioY)
+      aclaraTmp.setImagen(Image.Load(RutaImagenfondo))
+      ultimoAclara = aclaraTmp
+      figuras.Add(aclaraTmp)
+      capaGrisTmp = figuras[0]
+      capaGrisTmp.actualzaVisibilidad(1)
+      Return
+    Endif
+
+    If dibuja = "flecha" Then
+      'debug "creo flecha"
+      fle = New Flecha(mouseinicioX, mouseinicioY)
+
+      figuras.Add(fle)
+      ultimaFlecha = fle
+      Return
+    Endif
+
+    If dibuja = "manoalzada" Then
+      'creo una mano alzada temporal...
+      manoalzadaTmp = New ManoAlzada(Mouse.x, Mouse.y)
+      'debug "creando mano alzada"
+      figuras.Add(manoalzadaTmp)
+      ultmaManoAlzada = manoalzadaTmp
+      Wait 0.01
+      Return
+    Endif
+
+    If dibuja = "manoalzadaFlecha" Then
+      'creo una mano alzada temporal...
+      manoalzadaTmpFlecha = New ManoAlzadaFlecha(Mouse.x, Mouse.y)
+      figuras.Add(manoalzadaTmpFlecha)
+      ultmaManoAlzadaFlecha = manoalzadaTmpFlecha
+      Return
+    Endif
+
+    If dibuja = "subrayar" Then
+      'creo una subrayador
+      subrayadorTmp = New Subrayador(Mouse.x, Mouse.y)
+      figuras.Add(subrayadorTmp)
+      ultmaSubrayador = subrayadorTmp
+      Return
+    Endif
+
+    If dibuja = "EditaTexto" Then
+      'con las coordenas que tengo, averiguo que hay un texto cerca...
+      text = ModuleComun.BuscarTexto(figuras, mouse.x, Mouse.y)
+      If IsNull(text) Then
+      Else
+        text.editar()
+      Endif
+
+      dibuja = ""
+      Return
+    Endif
+
+    If dibuja = "desplazaTexto" Then
+
+      text = ModuleComun.BuscarTexto(figuras, mouse.x, Mouse.y)
+      If IsNull(text) Then
+        'no hago nada
+        dibuja = ""
+      Else
+        'no hago nada, dejo dibuja en modo "desplazaTexto"
+        ultimoText = text
+      Endif
+      ' Debug text
+
+    Endif
+
+    If dibuja = "desplazaObjeto" Then
+      dibujoDesplazamiento = ModuleComun.BuscarObjeto(figuras, Mouse.x, Mouse.y)
+      If IsNull(dibujoDesplazamiento) Then
+        'no hago nada
+        dibuja = ""
+      Else
+        ultimoDesplazamiento = dibujoDesplazamiento
+        '      Print dibuja, dibujoDesplazamiento
+      Endif
+
+    Endif
+
+    If dibuja = "propiedades" Then
+      dibujoDesplazamiento = ModuleComun.BuscarObjeto(figuras, Mouse.x, Mouse.y)
+      If IsNull(dibujoDesplazamiento) Then
+        'no hago nada
+        dibuja = ""
+      Else
+        dibujoDesplazamiento.mostrarPropiedades()
+        dibuja = ""
+        DrawingArea1.Refresh()
+      Endif
+
+    Endif
+
+    If dibuja = "borradoObjetoSeñalado" Then
+
+      If figuras.count > 1 Then
+        dibujoDesplazamiento = ModuleComun.BuscarObjeto(figuras, Mouse.x, Mouse.y)
+        If IsNull(dibujoDesplazamiento) Then Return
+        If Object.Class(dibujoDesplazamiento).name = "Numerador" Then
+          ContandorNumerador -= 1
+        Endif
+        '  Print Object.Class(figuras[figuras.max])
+        'debug figuras.Count
+        '  If Object.Class(dibujoDesplazamiento).name = "Aclara" Then
+        '  figuraExtraida = figuras[0]
+        '  capagristmp = figuraExtraida
+        ' capagristmp.actualzaVisibilidad(-1)
+        '  Endif
+        figuras.Extract(figuras.Find(dibujoDesplazamiento))
+
+        DrawingArea1.Refresh()
+
+      Endif
+    Endif
+    If dibuja = "chincheta" Then
+      If InStr(ModuleComun.ChinchetaRuta, "chinchetas/") = 0 Then
+        tmpImagen = Image.Load(ModuleComun.ChinchetaRuta)
+        chin = New Chincheta(Mouse.x, Mouse.y, tmpImagen.w, tmpImagen.h)
+
+      Else
+        chin = New Chincheta(Mouse.x, Mouse.y)
+
+      Endif
+
+      chin.icono(ModuleComun.ChinchetaRuta)
+      figuras.Add(chin)
+      DrawingArea1.Refresh()
+      Return
+    Endif
+  Endif
+
+End
+
+'AL LEVANTAR EL RATÓN DEL AREA DE DIBUJO ESTABLECEMOS ESTADO DE NO DIBUJO E INICIALIZAMOS COORDENADAS DEL RATÓN
+Public Sub DrawingArea1_MouseUp()
+
+  Dim xmin As Integer
+  Dim ymin As Integer
+
+  Dim chin As Chincheta
+
+  TimerCambioCursorNormal()
+
+  If botonera = True Then
+    botonera = False
+    Return
+  Endif
+
+  If dibujando = True Then
+    dibujando = False
+    mousefinalX = Mouse.X
+    mousefinalY = Mouse.Y
+    'debug "Coordenadas al LEVANTAR ratón", mousefinalX, mousefinalY
+  Endif
+
+  If dibuja = "rectanguloUP" Then
+    dibuja = "rectangulo"
+  Endif
+
+  If dibuja = "elipseUP" Then
+    dibuja = "elipse"
+  Endif
+
+  If dibuja = "TomaCapturaZonaUp" Then
+    'borrado de ultima figura...
+    figuras.Pop()
+    DrawingArea1.Refresh()
+
+    ModuleComun.TomarFotoParcial(mouseinicioX + Me.x, mouseinicioY + Me.y, Mouse.x + Me.x, Mouse.y + Me.y, VBox1) ''añado situacion del formulario para el caso de que halla barras
+
+    dibuja = dibujoAnterior
+  Endif
+
+  If dibuja = "EmborronarTomaCapturaZonaUp" Then
+    'borrado de ultima figura...
+    figuras.Pop()
+    DrawingArea1.Refresh()
+
+    xmin = Min(mouseinicioX, Mouse.x) + 16
+    ymin = Min(mouseinicioY, Mouse.y) + 16
+
+    chin = New Chincheta(xmin, ymin)
+    chin.icono(ModuleComun.EmborronarTomarFotoParcial(mouseinicioX + Me.x, mouseinicioY + Me.y, Mouse.x + Me.x, Mouse.y + Me.y, VBox1))
+    figuras.add(chin, 2)
+    DrawingArea1.Refresh()
+    dibuja = "EmborronarTomaCapturaZona" 'para que vuelva a emborronar mas zonas, sin tener que volver a pulsar el boton de emborronado
+  Endif
+
+  If dibuja = "flecha" Then
+    'debug "tramo final"
+    mousefinalX = Mouse.X
+    mousefinalY = Mouse.Y
+    dibuja = "flechaup"
+  Endif
+
+  If dibuja = "manoalzada" Then
+    'debug "tramo final"
+
+    dibuja = "manoalzadaup"
+  Endif
+
+  If dibuja = "manoalzadaFlecha" Then
+    dibuja = "manoalzadaFlechaFinal"
+  Endif
+
+  If dibuja = "subrayar" Then
+    dibuja = "subrayadorup"
+  Endif
+
+  If dibuja = "linea" Then
+    dibuja = "lineaup"
+    mousefinalX = Mouse.X
+    mousefinalY = Mouse.Y
+
+  Endif
+
+  If dibuja = "desplazaTexto" Then
+    ultimoText.setX(mousefinalX)
+    ultimoText.sety(mousefinalY)
+  Endif
+
+  If dibuja = "desplazaObjeto" Then
+    ultimoDesplazamiento.desplaza(mousefinalX, mousefinalY)
+    '  dibuja = "" ''NOTE: anulando dibuja desplaza objeto
+  Endif
+
+  If dibuja = "aclara" Then
+    dibuja = "aclaraup"
+  Endif
+  DrawingArea1.Refresh()
+
+End
+
+'AL MOVER EL RATÓN ACTUALIZAMOS LAS COORDENADAS FINALES PARA SABER A DÓNDE TENEMOS QUE LLEVAR LA LÍNEA
+'Y DIBUJAMOS
+Public Sub DrawingArea1_MouseMove()
+
+  If IsNull(mouse) Then
+    Return
+  Endif
+
+  If dibujando = True Then
+    Select Case dibuja
+      Case "manoalzada"
+        ultmaManoAlzada.Add(mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+      Case "manoalzadaFlecha"
+        ultmaManoAlzadaFlecha.Add(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+      Case "desplazaTexto"
+        ultimoText.setX(mouse.x)
+        ultimoText.sety(Mouse.y)
+        DrawingArea1.Refresh()
+
+      Case "desplazaObjeto"
+        ultimoDesplazamiento.desplaza(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+
+      Case "rectanguloUP"
+        ultimorectangulo.ptofinal(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+      Case "elipseUP"
+        ultimoElipse.ptofinal(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+      Case "TomaCapturaZonaUp"
+        ultimorectZona.ptofinal(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+      Case "EmborronarTomaCapturaZonaUp"
+        ultimorectZona.ptofinal(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+
+      Case "linea"
+        ultimaLinea.ptoDiseno(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+      Case "flecha"
+        ultimaFlecha.ptoDiseno(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+      Case "subrayar"
+        ultmaSubrayador.Add(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+      Case "aclara"
+        ultimorectZona.ptofinal(Mouse.x, Mouse.y)
+        DrawingArea1.Refresh()
+    End Select
+  Endif
+
+End
+
+'DIBUJAMOS
+Public Sub DrawingArea1_Draw()
+
+  Dim a As Integer
+
+  Dim dibTmp As Dibujo
+
+  'If dibuja = "no" Then
+  '   Return
+  '  Endif
+
+  If botonera = True Then
+    botonera = False
+    Return
+  Endif
+  'dibujo de lineas horizontales y verticales...
+  Select Case DibujaEfecto
+    Case "renglones"
+
+      'repite el alto del drawing entre los renglones que pide...
+      For a = 0 To (SpinBoxR + 1)
+        Paint.MoveTo(0, a * incrementoh)
+        Paint.LineTo(DrawingArea1.w, a * incrementoh)
+        Paint.stroke
+      Next
+
+      'version 0.0.74
+    Case "fondodinamico2pantallas"
+      PictureBoxFondo.picture = Desktop.Screenshot(Desktop.Screenshot().w / 2, 0, Desktop.Screenshot().w / 2, Desktop.Screenshot().h)
+
+    Case "cuadricula"
+
+      'repite el alto del drawing entre los renglones que pide...
+      For a = 0 To (SpinBoxRC + 1)
+        Paint.MoveTo(0, a * incrementoh)
+        Paint.LineTo(DrawingArea1.w, a * incrementoh)
+        Paint.stroke
+      Next
+
+      For a = 0 To (SpinBoxHC + 1)
+        Paint.MoveTo(a * incrementov, 0)
+        Paint.LineTo(a * incrementov, DrawingArea1.h)
+        Paint.stroke
+      Next
+
+  End Select
+  'dibujo normal
+
+  Select Case dibuja
+    Case ""
+      'no hacere nada
+    Case "lineaup"
+      ultimaLinea.ptofinal(mousefinalX, mousefinalY)
+      ultimaLinea.SetColor(colorActual)
+      ultimaLinea.Settamano(anchoActual)
+      ultimaLinea.SetTransparencia(transparenciaActual)
+
+      dibuja = "lineaInicio"
+
+    Case "subrayadorup"
+      ultmaSubrayador.Add(mousefinalX, mousefinalY)
+      ultmaSubrayador.SetColor(colorActual)
+      ultmaSubrayador.Settamano(anchoActual)
+      ultmaSubrayador.SetTransparencia(transparenciaActual)
+
+      dibuja = "subrayar"
+      '
+    Case "manoalzada"
+      'empezando a dibujar una linea mano alzada...
+      'no hacer nada
+    Case "manoalzadaup"
+      'termino de dibujar
+      ultmaManoAlzada.Add(mousefinalX, mousefinalY)
+      ultmaManoAlzada.SetColor(colorActual)
+      ultmaManoAlzada.Settamano(anchoActual)
+      ultmaManoAlzada.SetTransparencia(transparenciaActual)
+      '   dibuja = "linea"
+      dibuja = "manoalzada"
+    Case "manoalzadaFlechaFinal"
+      ultmaManoAlzadaFlecha.Final(mousefinalX, mousefinalY)
+      dibuja = "manoalzadaFlecha"
+      ultmaManoAlzadaFlecha.SetColor(colorActual)
+      ultmaManoAlzadaFlecha.Settamano(anchoActual)
+      ultmaManoAlzadaFlecha.SetTransparencia(transparenciaActual)
+
+    Case "flechaup"
+      'dibujar flecha final....
+
+      'debug "final flecha"
+      ultimaFlecha.ptofinal(mousefinalX, mousefinalY)
+      dibuja = "flecha"
+      ultimaFlecha.SetColor(colorActual)
+      ultimaFlecha.Settamano(anchoActual)
+      ultimaFlecha.SetTransparencia(transparenciaActual)
+
+    Case "rectangulo"
+      ultimorectangulo.ptofinal(mousefinalX, mousefinalY)
+      '  dibuja = "linea"
+      dibuja = "rectanguloInicio"
+
+      ultimorectangulo.SetColor(colorActual)
+      ultimorectangulo.Settamano(anchoActual)
+      ultimorectangulo.SetTransparencia(transparenciaActual)
+
+    Case "oscurece"
+      If IsNull(ultimoOscurece) Then
+      Else
+
+        ultimoOscurece.ptofinal(mousefinalX, mousefinalY)
+        '  dibuja = "linea"
+        dibuja = ""
+        ultimoOscurece = Null
+      Endif
+
+    Case "aclaraup"
+
+      If IsNull(ultimoAclara) Then
+      Else
+
+        ultimoAclara.ptofinal(mousefinalX, mousefinalY)
+        '  dibuja = "linea"
+        dibuja = "aclara"
+        ultimoAclara = Null
+      Endif
+
+    Case "borrado"
+      DrawingArea1.Visible = False 'la hago invisible
+      '  Wait 0.1
+      DrawingArea1.Visible = True 'la activo
+      mouseinicioX = -1
+      mousefinalX = -1
+      mouseinicioY = -1
+      mousefinalY = -1
+
+      figuras.Clear()
+      AnadeCapaGris()
+
+      dibuja = dibujoAnterior '   dibuja = "linea"
+      'debug "borrado"
+
+    Case "elipse"
+      ultimoElipse.ptofinal(mousefinalX, mousefinalY)
+      dibuja = "elipseInicio"
+      ultimoElipse.SetColor(colorActual)
+      ultimoElipse.Settamano(anchoActual)
+      ultimoElipse.SetTransparencia(transparenciaActual)
+
+  End Select
+  '-------------------------------------------------------
+  'dibujar las figuras que tenemos guardas
+  '-------------------------------------------------------
+  For Each dibTmp In figuras
+    Select Case dibuja
+      Case "desplazaObjeto"
+        dibTmp.ptoControl = True
+        dibTmp.iconoMover = Image.Load("mover.png")
+        dibTmp.tipoIcono = "mover.png"
+
+      Case "borradoObjetoSeñalado"
+        dibTmp.ptoControl = True
+        dibTmp.iconoMover = Image.Load("iconoPapelera.png")
+        dibTmp.tipoIcono = "iconoPapelera.png"
+
+      Case "propiedades"
+        dibTmp.ptoControl = True
+        dibTmp.iconoMover = Image.Load("propiedades.png")
+        dibTmp.tipoIcono = "propiedades.png"
+
+      Default
+        dibTmp.ptoControl = False
+
+    End Select
+    dibTmp.dibuja()
+  Next
+
+Catch
+  Debug "Error dibujando..."
+  Debug Error.Text
+  Debug Error.Where
+
+End
+'-------------------------------------------------
+'barra de botones
+'-------------------------------------------------
+
+Public Sub ToolButtonBorrar_Click()
+  'mejorar... 0.48
+  'borrar el elemento elegido.....
+
+  dibuja = "borradoObjetoSeñalado"
+  DrawingArea1.Refresh()
+
+  'borrar el ultimo dibujo realizado
+
+  subirLosDemas()
+  'PulsadoUnaTecla(16777219)
+
+End
+
+Public Sub ToolButtonPapelera_Click()
+
+  'borrar todos los dibujos realizados
+
+  PulsadoUnaTecla(16777223)
+
+End
+
+Public Sub ToolButtonManoAlzada_Click()
+
+  subirLosDemas()
+  'botonera = True
+  'DrawingArea1.Refresh()
+  PulsadoUnaTecla(65)
+
+End
+
+Public Sub ToolButtonLinea_Click()
+
+  subirLosDemas()
+  '  botonera = True
+  DrawingArea1.Refresh()
+  PulsadoUnaTecla(76)
+
+End
+
+Public Sub ToolButtonFlecha_Click()
+
+  subirLosDemas()
+  'botonera = True
+  PulsadoUnaTecla(70)
+
+End
+
+Public Sub ToolButtonEclipse_Click()
+
+  subirLosDemas()
+  ' botonera = True
+  PulsadoUnaTecla(69)
+
+End
+
+Public Sub ToolButtonRectangulo_Click()
+
+  subirLosDemas()
+  '  botonera = True
+  PulsadoUnaTecla(82)
+
+End
+
+Public Sub ToolButtonOscurece_Click()
+
+  '  botonera = True
+  PulsadoUnaTecla(79)
+
+End
+
+Public Sub ToolButtonTomarFoto_Click()
+
+  'poner una cuenta atras en la pantalla
+  'ocultar barra
+  VBox1.visible = False
+  Wait 0.1
+  'caputar
+  'Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/$USER/fondoCaptura.png -q 100" Wait
+  'Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/fondoCaptura.png -q 100" Wait
+  Desktop.Screenshot(0, 0, Screen.w, Screen.h).Save(user.home & "/.config/pintascreen/fondoCaptura.png", 100)
+  Dialog.Filter = ["*.png", "png"]
+  'presentar dialog para guardar nombre
+  If Dialog.SaveFile() Then
+  Else
+    If File.Ext(Dialog.path) <> "png" Then Dialog.path &= ".png"
+    Try Kill Dialog.Path 'borrado preventivo si existe un archivo con nombre similar, version 0.31
+    ' Copy  user.home & "/.config/pintascreen/" & User.Name & "/fondoCaptura.png" To Dialog.Path
+    Copy user.home & "/.config/pintascreen/fondoCaptura.png" To Dialog.Path
+  Endif
+  Wait 0.1
+  VBox1.visible = True
+
+End
+
+Public Sub ToolButtonSalir_Click()
+
+  salir()
+
+End
+
+Public Sub ToolButtonConfigurar_Click()
+
+  Dim salidacomando As String
+  Dim comando As String
+  Dim nombrearchivo As String
+
+  FormAcercaDE.Principal = Me
+  FormAcercaDE.listaFiguras = figuras
+  FormAcercaDE.ShowModal()
+  ' recordatorio...covertir a miniatura...
+  Try Kill user.home & "/.config/pintascreen/mini.png"
+  nombrearchivo = Replace$(File.Name(ModuleComun.ChinchetaRuta), " ", "_")
+
+  If Mid$(modulecomun.ChinchetaRuta, 1, 10) = "chinchetas" Then
+    Try Copy ModuleComun.ChinchetaRuta To user.home & "/.config/pintascreen/" & nombrearchivo
+  Else
+    Try Copy ModuleComun.ChinchetaRuta To user.home & "/.config/pintascreen/" & nombrearchivo
+  Endif
+
+  'conversion con "convert" (hace falta tener instalado "rsvg-convert"
+  comando = "convert " & user.home & "/.config/pintascreen/" & nombrearchivo & " -resize 32x32 " & user.home & "/.config/pintascreen/mini.png"
+  Shell comando Wait
+
+  If Not Exist("tmp/mini.png") And InStr(nombrearchivo, ".svg") <> 0 Then
+    'intento hacer conversion con inkscape
+    comando = "inkscape -z -e " & user.home & "/.config/pintascreen/mini.png -w 32 -h 32 " & user.home & "/.config/pintascreen/" & nombrearchivo
+    Shell comando To salidacomando
+
+  Endif
+
+  If Exist(user.home & "/.config/pintascreen/mini.png") Then
+    ToolButtonChincheta.Picture = Picture.load(user.home & "/.config/pintascreen/mini.png")
+  Else
+    'no he podido crear la imagen pequeña... cargo la imagen...
+    Try ToolButtonChincheta.Picture = Picture.load(ModuleComun.ChinchetaRuta)
+  Endif
+
+End
+
+Public Sub ToolButtonMarcador_Click()
+
+  'botonera = True
+  subirLosDemas()
+  PulsadoUnaTecla(77)
+
+End
+
+Public Sub ToolButtonTexto_Click()
+
+  subirLosDemas()
+  PulsadoUnaTecla(84)
+
+End
+
+Public Sub ButtonMoverBarra_MouseDown()
+
+  incrementoDesplazamientoXBarra = VBox1.ClientX - Mouse.x
+  incrementoDesplazamientoYBarra = VBox1.ClientY - Mouse.y
+
+End
+
+Public Sub ButtonMoverBarra_MouseMove()
+
+  VBox1.x += Mouse.x + incrementoDesplazamientoXBarra
+  VBox1.y += Mouse.Y + incrementoDesplazamientoYBarra
+
+End
+
+Public Sub ToolButtonVentanas_Click()
+
+  Dim valortmp As Integer
+
+  If ToolButtonVentanas.tag = "Vertical" Then
+    valortmp = VBox1.w
+    VBox1.w = Screen.w
+    VBox1.h = valortmp
+    VBox1.x = 0
+    VBox1.y = Screen.h - 50
+    ToolButtonVentanas.Picture = Picture["hv.png"] ' Picture["vertical.png"]
+    ToolButtonVentanas.tag = "Horizontal"
+  Else
+    valortmp = VBox1.h
+    VBox1.h = VBox1.w
+    VBox1.w = valortmp
+    ToolButtonVentanas.tag = "Vertical"
+    ToolButtonVentanas.Picture = Picture["hv.png"] ''Picture["horizontal.png"]
+    VBox1.x = Screen.w - VBox1.w
+    VBox1.y = 0
+
+  Endif
+
+End
+
+Public Sub cargafondo()
+
+  Wait 1 'espero 1 segundo para que de tiempo a quitarse el menu
+
+  'Shell "mkdir -p /home/" & user.home & "/.config/pintascreen/$USER/"
+
+  'Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/$USER/fondo.jpg -q 100" Wait
+  'Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/fondo.jpg -q 100" Wait
+  Desktop.Screenshot(0, 0, Screen.w, Screen.h).Save(user.home & "/.config/pintascreen/fondo.jpg", 100)
+  Me.X = 0
+  Me.Y = 0
+  Me.Border = False
+  DrawingArea1.X = 0
+  DrawingArea1.Y = 0
+
+  DrawingArea1.Width = Screen.Width
+  DrawingArea1.Height = Screen.Height
+
+  Me.w = Screen.Width
+  Me.h = Screen.H
+  'PictureBoxFondo.Picture = Picture.Load( user.home & "/.config/pintascreen/" & User.Name & "/fondo.jpg")
+  PictureBoxFondo.Picture = Picture.Load(user.home & "/.config/pintascreen/fondo.jpg")
+  VBox1.x = Screen.w - VBox1.W
+  VBox1.y = Screen.h / 2 - VBox1.h / 2
+  ToolButtonVentanas.tag = "Vertical" 'estado de la barra de botones
+
+  'Herramienta predefinida para empezar:
+  dibuja = "manoalzada"
+
+End
+
+Public Sub desactivarBotonera()
+
+  VBox1.visible = False
+
+  botoneraActivada = False
+  Me.Refresh()
+
+End
+
+Public Sub activarBotonera()
+
+  VBox1.Visible = True
+  botoneraActivada = True
+  Me.Refresh()
+
+End
+
+Public Sub ToolButtonEmborronar_Click()
+
+  subirLosDemas()
+  dibujoAnterior = "" 'dibuja, cancelo lo que se estaba dibujando para que no de problemas al restablecerlo
+  dibuja = "EmborronarTomaCapturaZona"
+
+End
+
+Public Sub ToolButtonAclara_Click()
+
+  subirLosDemas()
+  'aclarar: tecla P: 80
+  PulsadoUnaTecla(80) 'Tecla P, "aclara"
+
+End
+
+Public Sub ToolButtonManoAlzada2_Click()
+  'mano alzada...
+
+  subirLosDemas()
+  PulsadoUnaTecla(71)
+
+End
+
+Public Sub ToolButtonTextoEdita_Click()
+  'tecla Y: editar texto...
+
+  subirLosDemas()
+  PulsadoUnaTecla(89)
+
+End
+
+Public Sub ToolButtonChincheta_Click()
+  'Pulsa C para dibujar una chincheta amarilla
+
+  subirLosDemas()
+
+  PulsadoUnaTecla(67) '  "chincheta"
+
+End
+
+Public Sub AnadeCapaGris()
+
+  Dim capa_gris As New CapaGris
+
+  figuras.Add(capa_gris)
+
+End
+
+Public Sub sinespera()
+
+  'hace que no se espere para iniciar el programa....
+  espera = False
+
+End
+
+Public Sub ToolButtonTomarFotoZona_Click()
+
+  subirLosDemas()
+  dibujoAnterior = "" 'dibuja, cancelo lo que se estaba dibujando para que no de problemas al restablecerlo
+  dibuja = "TomaCapturaZona"
+
+End
+
+Public Sub SpinBoxAncho_Change()
+
+  If SpinBoxAncho.value = 8 Then
+    Return
+  Endif
+  anchoActual = SpinBoxAncho.value
+
+  Settings["AnchoActual"] = anchoActual
+  Settings.Save()
+
+End
+
+Public Sub ColorButtonLineas_Change()
+
+  colorActual = ColorButtonLineas.value
+
+  If Settings["ReinicioContador", True] Then
+    ContandorNumerador = 0
+  Endif
+
+  Settings["ColorActual"] = colorActual
+  Settings.Save()
+
+End
+
+Public Sub ToolButtonTexto2_Click()
+
+  subirLosDemas()
+  'ELEGIR UN TEXTO Y DESPLAZARLO....
+  dibuja = "desplazaTexto"
+
+End
+
+Public Sub ToolButtonNumeroConsecutivo_Click()
+
+  subirLosDemas()
+  dibuja = "Numerador"
+
+End
+
+Public Sub TimerCambioCursorRojo()
+
+  'define cursor personalizado...http://www.gambas-es.org/viewtopic.php?p=15411
+  Me.Cursor = New Cursor(Picture.Load("manoRoja.png"))
+  Me.Mouse = Mouse.Custom
+
+End
+
+Public Sub TimerCambioCursorNormal()
+
+  'define cursor personalizado...http://www.gambas-es.org/viewtopic.php?p=15411
+  Me.Cursor = New Cursor(Picture.Load("manoCursor.png"))
+  Me.Mouse = Mouse.Custom
+
+End
+
+Public Sub ToolButtonParadaStop_Click()
+
+  If ToolButtonParadaStop.tag = "parado" Then
+    VentanaDibujando = [True]
+    Me.Close
+  Endif
+
+End
+
+Public Sub BotonesNodisponibles(c As Control)
+
+  Dim cc As Control
+  Dim caja As HPanel
+
+  caja = Me.Children[1]
+  For Each cc In caja.Children
+    cc.Enabled = False
+
+  Next
+
+  c.Enabled = True
+
+End
+
+' Public Sub BotonesDisponibles(c As Control)
+'
+'   Dim cc As Control
+'   Dim caja As HPanel
+'
+'   caja = FMain.Children[1]
+'   For Each cc In caja.Children
+'     cc.Enabled = True
+'   Next
+'
+' End
+
+Public Sub ToolButtonMinimizar_Click()
+
+  Me.Minimized = True
+
+End
+
+Public Sub ToolButtonFondo_Click()
+
+  Dim c As String
+  Dim datos As New Variant[]
+  Dim ancho, alto As Integer
+  Dim rutaimagen As String
+  Dim dimensiones, informacion As String
+
+  FormFondo.setfondo(RutaImagenfondo)
+  FormFondo.valores = datos
+
+  FormFondo.ShowModal()
+
+  If datos.count = 0 Or If datos[0] = False Then
+    'no ha habido cambios
+  Else
+    'borrado de todo lo anterior...
+    PulsadoUnaTecla(16777223)
+    Select Case datos[1]
+      Case "blanco"
+        PictureBoxFondo.picture = Picture["blanco.png"]
+        RutaImagenfondo = user.home & "/.config/pintascreen/blanco.png"
+      Case "fondodinamico2pantallas"
+        DibujaEfecto = "fondodinamico2pantallas"
+
+      Case "renglones"
+        DibujaEfecto = "renglones"
+        PictureBoxFondo.picture = Picture["blanco.png"]
+        incrementoh = DrawingArea1.h / (datos[2] + 1)
+        SpinBoxR = datos[2]
+        RutaImagenfondo = user.home & "/.config/pintascreen/blanco.png"
+      Case "cuadricula"
+        DibujaEfecto = "cuadricula"
+        PictureBoxFondo.picture = Picture["blanco.png"]
+        SpinBoxRC = datos[2]
+        SpinBoxHC = datos[3]
+        incrementoh = DrawingArea1.h / (datos[2] + 1)
+        incrementov = DrawingArea1.w / (datos[3] + 1)
+        RutaImagenfondo = user.home & "/.config/pintascreen/blanco.png"
+      Case "imagen"
+        DibujaEfecto = ""
+        'ajustar imagen al ancho y largo de la pantalla...
+        If datos[2] = "" Then
+          'no hacer nada, no se ha elegido ningun fichero
+          Return
+        Endif
+        ''*****************************************************+
+        ''CARGAR IMAGEN Y ADAPTARLA A LA PANTALLA
+        ''*****************************************************+
+
+        Try Kill user.home & "/.config/pintascreen/fondoelegido." & File.Ext(datos[2])
+
+        Copy datos[2] To user.home & "/.config/pintascreen/fondoelegido." & File.Ext(datos[2])
+        Wait 0.05
+
+        Select Case datos[3]
+          Case "Escalar"
+            ''caso 1º de adaptar imagen a extensión de pantalla, escanlando tanto vertical como horizontal
+            c = "convert " & user.home & "/.config/pintascreen/fondoelegido." & File.Ext(datos[2]) & " -resize " & Str$(screen.w) & "x" & Str$(screen.h) & "! " & user.home & "/.config/pintascreen/fondoelegido2." & File.Ext(datos[2])
+            ' Print "comando: ", c
+            Shell c Wait
+
+          Case "SinEscalar"
+            'pongo un fondo gris y encima la imagen sin encalar en el centro.
+            CompruebaFondoGris()
+            c = "composite -gravity center " & user.home & "/.config/pintascreen/fondoelegido." & File.Ext(datos[2]) & " " & user.home & "/.config/pintascreen/gristmp2.png" & " " & user.home & "/.config/pintascreen/fondoelegido2." & File.Ext(datos[2])
+            Shell c Wait
+
+          Case "Horizontal"
+            'pongo un fondo gris y encima la imagen escalada que ocupe el ancho de la pantalla
+            CompruebaFondoGris()
+
+            rutaimagen = user.home & "/.config/pintascreen/fondoelegido." & File.Ext(datos[2])
+
+            Shell "identify " & rutaimagen To informacion
+
+            dimensiones = Split(informacion, " ")[2]
+            ancho = Val(Mid(dimensiones, 1, InStr(dimensiones, "x") - 1))
+
+            alto = Val(Mid(dimensiones, InStr(dimensiones, "x") + 1, Len(dimensiones)))
+
+            '1º convierto la imagen
+            c = "convert " & user.home & "/.config/pintascreen/fondoelegido." & File.Ext(datos[2]) & " -resize " & Str$(screen.w) & "x" & Str$(Int(screen.w / (ancho) * (alto))) & "! " & user.home & "/.config/pintascreen/fondoelegido1tmp." & File.Ext(datos[2])
+            Shell c Wait
+            '2º la pongo encima del fondo
+            c = "composite -gravity center " & user.home & "/.config/pintascreen/fondoelegido1tmp." & File.Ext(datos[2]) & " " & user.home & "/.config/pintascreen/gristmp2.png" & " " & user.home & "/.config/pintascreen/fondoelegido2." & File.Ext(datos[2])
+            Shell c Wait
+
+          Case "Vertical"
+            'pongo un fondo gris y encima la imagen escalada que ocupe el alto de la pantalla
+            CompruebaFondoGris()
+            rutaimagen = user.home & "/.config/pintascreen/fondoelegido." & File.Ext(datos[2])
+            Shell "identify " & rutaimagen To informacion
+
+            dimensiones = Split(informacion, " ")[2]
+            ancho = Val(Mid(dimensiones, 1, InStr(dimensiones, "x") - 1))
+
+            alto = Val(Mid(dimensiones, InStr(dimensiones, "x") + 1, Len(dimensiones)))
+
+            '1º convierto la imagen
+            c = "convert " & user.home & "/.config/pintascreen/fondoelegido." & File.Ext(datos[2]) & " -resize " & Str$(Int(Screen.h * ancho / alto)) & "x" & Str$(Screen.h) & "! " & user.home & "/.config/pintascreen/fondoelegido1tmp." & File.Ext(datos[2])
+            Shell c Wait
+
+            '2º la pongo encima del fondo
+            c = "composite -gravity center " & user.home & "/.config/pintascreen/fondoelegido1tmp." & File.Ext(datos[2]) & " " & user.home & "/.config/pintascreen/gristmp2.png" & " " & user.home & "/.config/pintascreen/fondoelegido2." & File.Ext(datos[2])
+            Shell c Wait
+
+        End Select
+
+        'Parte comun a los casos de imagenes de fondo
+        PictureBoxFondo.Picture = Picture.Load(user.home & "/.config/pintascreen/fondoelegido2." & File.Ext(datos[2]))
+        RutaImagenfondo = user.home & "/.config/pintascreen/fondoelegido2." & File.Ext(datos[2])
+    End Select
+
+  Endif
+
+End
+
+Private Sub CompruebaFondoGris()
+
+  Dim c As String
+
+  If Not Exist(user.home & "/.config/pintascreen/gris2.png") Then
+    Try Copy "gris.png" To user.home & "/.config/pintascreen/gristmp.png"
+    Wait 0.05
+    c = "convert " & user.home & "/.config/pintascreen/gristmp.png" & " -resize " & Str$(screen.w) & "x" & Str$(screen.h) & "! " & user.home & "/.config/pintascreen/gristmp2.png"
+    ' Print "comando: ", c
+    Shell c Wait
+  Endif
+
+  Return
+
+End
+
+Public Sub ButtonTextoOK_Click()
+
+  Dim text As Texto
+  Dim palabra As String
+
+  colorActual = ColorButtonColorBotonTexto.value
+  palabra = TextBoxTexto.text
+  text = New Texto(FrameTexto.tag[0], FrameTexto.Tag[1], palabra, colorActual, anchoActual + ModuleComun.IncrementoLetra)
+  figuras.Add(text)
+  TextBoxTexto.text = ""
+  FrameTexto.visible = False
+  PictureBoxFondo.Refresh()
+  t.Visible = False
+
+End
+
+Public Sub TextBoxTexto_KeyPress()
+
+  If Key.code = Key.Enter Or Key.code = Key.Return Or Key.code = Key.tab Or Key.code = Key.esc Then
+    ButtonTextoOK_Click()
+  Endif
+
+End
+
+Public Sub ToolButtonSelect_Click()
+
+  If dibuja = "desplazaObjeto" Then
+    dibuja = ""
+    subirLosDemas()
+  Else
+    subirLosDemas()
+    dibuja = "desplazaObjeto"
+  Endif
+  DrawingArea1.Refresh()
+
+End
+
+Public Sub ButtonTeclado_Click()
+  ' amplio ancho de teclado
+
+  Dim ancho As Integer = 500
+  Dim largo As Integer = 300
+
+  t.x = FrameTexto.x
+  t.y = FrameTexto.y + FrameTexto.h + 5
+
+  If (t.y + largo) > Screen.h Then
+    'teclado por encima...
+    t.y = FrameTexto.y - largo
+
+  Endif
+
+  t.w = ancho
+  t.h = largo 'amplio alto de teclado
+  t.crea_teclas()
+  t.caja_TextBox = TextBoxTexto
+  t.Visible = True
+
+End
+
+Public Sub ToolButtonChincheta_MouseDown()
+
+  If Mouse.Right = True Then
+    ToolButtonConfigurar_Click()
+    Stop Event
+  Endif
+
+End
+
+Public Sub subirLosDemas()
+
+  Dim c As Control
+  Dim tt As ToggleButton
+
+  ' If Last.value = True Then
+
+  For Each c In Me.Controls
+    If Object.Class(c).name = "ToggleButton" And c <> Last Then
+      tt = c 'paso de un objeto tipo control a uno ya especifico tipo Toggebutton
+      tt.Value = False
+    Endif
+
+  Next
+  ' Endif
+  DrawingArea1.Refresh()
+
+End
+
+Public Sub ToolButtonDesplazaTeclado_MouseMove()
+
+  Dim ancho As Integer = 500
+  Dim largo As Integer = 300
+
+  FrameTexto.x += Mouse.x + incrementoDesplazamientoXBarra
+  FrameTexto.y += Mouse.Y + incrementoDesplazamientoYBarra
+
+  t.x = FrameTexto.x
+  t.y = FrameTexto.y + FrameTexto.h + 5
+
+  If (t.y + largo) > Screen.h Then
+    'teclado por encima...
+    t.y = FrameTexto.y - largo
+
+  Endif
+
+  t.w = ancho
+  t.h = largo 'amplio alto de teclado
+  't.crea_teclas()
+  '  t.caja_TextBox = TextBoxTexto
+
+End
+
+Public Sub ToolButtonDesplazaTeclado_MouseDown()
+
+  incrementoDesplazamientoXBarra = FrameTexto.ClientX - Mouse.x
+  incrementoDesplazamientoYBarra = FrameTexto.ClientY - Mouse.y
+
+End
+
+Public Sub ToolButtonFondoReloj_Click()
+
+  Dim contador As Integer
+  ' minimizar, contar 5 segundo tomar foto y asignar al fondo...
+  Me.Minimized = True
+  contador = 5
+  While True
+    Wait 1
+    contador -= 1
+    Me.Title = contador
+    If contador = -1 Then Break
+  Wend
+  Me.Title = "pintaScreen"
+  Wait 0.1
+  'Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/$USER/fondo.jpg -q 100" Wait
+  'Shell "DISPLAY=:0 scrot /home/" & user.home & "/.config/pintascreen/fondo.jpg -q 100" Wait
+  Desktop.Screenshot(0, 0, Screen.w, Screen.h).Save(user.home & "/.config/pintascreen/fondo.jpg", 100)
+  'PictureBoxFondo.Picture = Picture.Load( user.home & "/.config/pintascreen/" & User.Name & "/fondo.jpg")
+  PictureBoxFondo.Picture = Picture.Load(user.home & "/.config/pintascreen/fondo.jpg")
+  'RutaImagenfondo =  user.home & "/.config/pintascreen/" & User.Name & "/fondo.jpg"
+  RutaImagenfondo = user.home & "/.config/pintascreen/fondo.jpg"
+  Wait 0.5
+
+  ModuleSonido.SonidoCaptura()
+
+  Me.Minimized = False
+  Me.w = Screen.Width
+  Me.h = Screen.H
+  'Me.Picture = Picture.Load( user.home & "/.config/pintascreen/" & User.Name & "/fondo.jpg")
+
+  PictureBoxFondo.w = Screen.w
+  PictureBoxFondo.h = Screen.h
+  ButtonMoverBarra_click()
+
+  'borrar todos los dibujors realizados....
+  ToolButtonPapelera_Click()
+
+End
+
+Public Sub ButtonMoverBarra_click()
+
+End
+
+Public Sub ToolButtonPapelera_Enter()
+
+  '  Print "entrada en el boton"
+
+End
+
+'webcamb activacion/desactivacion
+
+Public Sub ToolButtonWebcam_Click()
+
+  If IsNull(ToolButtonWebcam.tag) Then
+
+    Try hWebCam = New VideoDevice(dipositivoWebCam)
+    If Error Then
+      Message.Info(("Problemas para obtener la imagen de la camara web,") & gb.CrLf & (" pruebe con otra ruta de dispositivo /dev/video1, /dev/video2,"))
+      Return
+    Else
+      HBoxWebCam.visible = True
+      TimerWebcam.Delay = RefrescoWebcam
+      TimerWebcam.Start()
+      ToolButtonWebcam.tag = "contenido"
+    Endif
+  Else
+
+    Try hWebcam = Null
+    ToolButtonWebcam.tag = Null
+    TimerWebcam.Stop()
+
+    HBoxWebCam.visible = False
+  Endif
+
+End
+
+Public Sub TimerWebcam_Timer()
+
+  Dim hPict As Picture
+  '  Dim img As Image
+
+  Try hPict = hWebCam.Image.Picture
+  If Error Then
+    Message.Info(("Problemas para obtener la imagen de la camara web,") & gb.CrLf & (" pruebe con otra ruta de dispositivo /dev/video1, /dev/video2,"))
+    timer.Stop()
+  Else
+    PictureBoxWebCam.Picture = hpict
+  Endif
+
+End
+
+Public Sub ButtonMoverWebCam_MouseDown()
+
+  incrementoDesplazamientoXBarraWebcam = HBoxWebCam.ClientX - Mouse.x
+  incrementoDesplazamientoYBarraWebcam = HBoxWebCam.ClientY - Mouse.y
+
+End
+
+Public Sub ButtonMoverWebCam_MouseMove()
+
+  HBoxWebCam.x += Mouse.x + incrementoDesplazamientoXBarraWebcam
+  HBoxWebCam.y += Mouse.Y + incrementoDesplazamientoYBarraWebcam
+
+End
+
+Public Sub cambiarTimerWebcam(valor As Integer)
+
+  TimerWebcam.delay = valor
+
+End
+
+Public Sub Form_Activate()
+
+  ' Print "toma captura..."
+  ' Desktop.Screenshot(0, 0, Screen.w, Screen.h).Save( user.home & "/.config/pintascreen/fondo.jpg", 100)
+  ' Me.Picture = Picture.Load( user.home & "/.config/pintascreen/fondo.jpg")
+  ' 'borrado de pila de elementos...
+  ' figuras.Clear()
+
+End
+
+Public Sub CambiadiametroYTamanoLetra(valor As Integer, size As Integer)
+  'cambia el diametro de la herramienta numerador
+
+  Me.diametro = valor
+  Me.TamanoLetraNumerador = size
+
+End
+
+'redimensionar webcam
+Public Sub PictureBoxRedimensionaWebcam_MouseDown()
+
+  WebcamRediX = Mouse.X
+  WebcamRediY = Mouse.Y
+
+End
+
+Public Sub PictureBoxRedimensionaWebcam_MouseUp()
+
+  HBoxWebCam.w = HBoxWebCam.w + (Mouse.x - WebcamRediX)
+  HBoxWebCam.h = HBoxWebCam.h + (Mouse.y - WebcamRediy)
+
+  PictureBoxRedimensionaWebcam.x = HBoxWebCam.w - 40
+  PictureBoxRedimensionaWebcam.y = HBoxWebCam.h - 40
+
+  PictureBoxWebCam.w = HBoxWebCam.w
+  PictureBoxWebCam.h = HBoxWebCam.h - 21
+  ButtonMoverWebCam.w = HBoxWebCam.w
+
+End
+
+Public Sub PictureBoxRedimensionaWebcam_MouseMove()
+
+  HBoxWebCam.w = HBoxWebCam.w + (Mouse.x - WebcamRediX)
+  HBoxWebCam.h = HBoxWebCam.h + (Mouse.y - WebcamRediy)
+
+  PictureBoxRedimensionaWebcam.x = HBoxWebCam.w - 40
+  PictureBoxRedimensionaWebcam.y = HBoxWebCam.h - 40
+
+  PictureBoxWebCam.w = HBoxWebCam.w
+  PictureBoxWebCam.h = HBoxWebCam.h - 21
+  ButtonMoverWebCam.w = HBoxWebCam.w
+
+End
+
+Public Sub PictureBoxWebCam_Leave()
+
+  PictureBoxRedimensionaWebcam.visible = False
+
+End
+
+Public Sub PictureBoxWebCam_Enter()
+
+  PictureBoxRedimensionaWebcam.visible = True
+
+End
+
+Public Sub PictureBoxRedimensionaWebcam_Enter()
+
+  PictureBoxRedimensionaWebcam.visible = True
+
+End
+
+Public Sub PictureBoxRedimensionaWebcam_Leave()
+
+  PictureBoxRedimensionaWebcam.visible = False
+
+End
+
+Public Sub ToolButtonPropiedades_Click()
+
+  subirLosDemas()
+  dibuja = "propiedades"
+  dibujando = False
+  DrawingArea1.Refresh()
+  'mostrar propiedades de un objeto...
+
+End
+
+Public Sub RefrescarDibujo()
+
+  PictureBoxFondo.Picture = Picture.Load(user.home & "/.config/pintascreen/fondo.jpg") 'cargo el nuevo fondo...
+
+  DrawingArea1.Refresh()
+
+End
+'------------------------------------------

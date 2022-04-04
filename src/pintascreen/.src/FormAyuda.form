@@ -1,0 +1,27 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,70,58)
+  Text = ("Ayuda")
+  Icon = Picture["icon:/32/question"]
+  Stacking = Window.Above
+  { TextLabel1 TextLabel
+    MoveScaled(1,4,66,52)
+    Text = ("<b>F1</b>: Ayuda (es esta pantalla)<br>\n<b>A</b>: Dibujar a mano alzada<br>\n<b>B</b>: Muestra u oculta la barra de herramientas<br>\n<b>C</b>: Coloca una chincheta en la posición del puntero del ratón<br>\n<b>E</b>:  Dibujar elipse<br>\n<b>F</b>: Dibujar flecha en linea recta<br>\n<b>G</b>: Dibujar a mano alzada terminando con una flecha<br>\n<b>L</b>: Dibujar linea<br>\n<b>P</b>: Aclara el fondo del rectángulo que definas<br>\n<b>M</b>: Marcador subrayador<br>\n<b>N</b>: Numerador<br>\n<b>R</b>: Dibujar rectángulo<br>\n<b>S</b>: Captura la pantalla para guardarla en un archivo de imagen<br>\n<b>Z</b>:   Captura una zona de la pantalla para guardarla en un archivo de image .jpg <br>\n<b>T</b>: Escribe texto (admite codigo Rich Text)<br>\n<b>Y</b>: Edita texto, seleccionando la primera letra en la pantalla.<br>\n<b>Tecla backspace o Retroceso:</b> Elimina el último elemento dibujado <br>\n<b>Tecla Supr:</b> Borrado de los elementos dibujados <br>\n<b>Tecla Esc</b> y <b>Doble Click:</b> Sale de la aplicación.")
+  }
+  { ButtonCerrar Button
+    MoveScaled(53,51,15,5)
+    Text = ("Aceptar")
+    Picture = Picture["icon:/22/apply"]
+  }
+  { PictureBox1 PictureBox
+    MoveScaled(55,1,10,11)
+    Picture = Picture["pintaScreen.png"]
+    Stretch = True
+  }
+  { TextLabel2 TextLabel
+    MoveScaled(4,0,23,4)
+    Font = Font["Arial,Bold,Italic,Underline,+4"]
+    Text = ("Teclas")
+  }
+}

@@ -1,0 +1,133 @@
+' Gambas class file
+
+Inherits Dibujo
+
+Private mouseinicioX As Integer
+Private mouseinicioY As Integer
+Private palabra As String
+Private colortexto As Integer = Color.RGB(128, 128, 255)
+Private tamano As Integer = 30
+
+Public Sub getX() As Integer
+
+  Return mouseinicioX
+
+End
+
+Public Sub getY() As Integer
+
+  Return mouseinicioY
+
+End
+
+Public Sub _new(...)
+
+  mouseinicioX = param[0]
+  mouseinicioY = param[1]
+  palabra = Param[2]
+  colortexto = Param[3]
+  tamano = Param[4]
+
+End
+
+Public Sub dibuja()
+
+  Paint.Font.Name = "Sans"
+  Paint.Font.Size = tamano
+  Paint.Font.Bold = False
+
+  Paint.MoveTo(mouseinicioX, mouseinicioY)
+  ''TODO:Mejorar el sistema de escritura de texto rico
+  '  Paint.Text(palabra) ''texto normal
+
+  Paint.RichText(palabra) ''texto rico
+
+  Paint.Brush = Paint.Color(colortexto)
+  Paint.Fill(True)
+  Paint.Brush = Paint.Color(0)
+  Paint.LineWidth = 0.1
+  Paint.Stroke
+
+  If Super.ptoControl = True Then
+    Paint.DrawImage(Me.iconoMover, mouseinicioX - 16, mouseinicioY - 16)
+    Paint.stroke
+  Endif
+
+End
+
+Public Sub editar()
+
+  Dim datos As New Variant[]
+  'Abro un formuario, y lo lleno con los datos actuales: texto, color texto, tamaño texto
+  'cuando se cierre, asignos a los nuevos valores...
+  'debug "editando..."
+
+  datos = [palabra, tamano, colortexto, False]
+  FormEditarTexto.informacion = datos
+  FormEditarTexto.ShowModal()
+  If datos[3] = True Then
+    palabra = datos[0]
+    tamano = datos[1]
+    colortexto = datos[2]
+
+  Endif
+
+End
+
+Public Sub setX(a As Integer)
+
+  mouseinicioX = a
+
+End
+
+Public Sub setY(a As Integer)
+
+  mouseinicioY = a
+
+End
+
+Public Sub desplaza(x As Integer, y As Integer)
+
+  mouseinicioX = x
+  mouseinicioY = y
+
+End
+
+'---------------------------------------------
+' mostrar propiedades
+' ---------------------------------------------
+Public Sub mostrarpropiedades()
+
+  'con las coordenas que tengo, averiguo que hay un texto cerca...
+  Me.editar()
+
+End
+
+Public Sub guardar() As String
+
+  Dim contenido As String
+
+  contenido = "dibujo|Texto|"
+  contenido &= Str$(colortexto) & "|"
+  contenido &= Str$(tamano) & "|"
+  contenido &= Str$(mouseinicioX) & "|"
+  contenido &= Str$(mouseinicioY) & "|"
+  contenido &= Str$(palabra) & "|"
+  Return contenido
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  If Arraylinea[1] = "Texto" Then
+    colortexto = Val(Arraylinea[2])
+    tamano = Val(Arraylinea[3])
+    mouseinicioX = Val(Arraylinea[4])
+    mouseinicioY = Val(Arraylinea[5])
+    palabra = Arraylinea[6]
+    Return True
+  Else
+    Return False
+  Endif
+
+End

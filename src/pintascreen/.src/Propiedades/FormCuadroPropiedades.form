@@ -1,0 +1,22 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,38,57)
+  Stacking = Window.Above
+  Arrangement = Arrange.Vertical
+  { LabelObjeto Label
+    MoveScaled(5,0,25,3)
+    Background = &H007FFF&
+    Foreground = &HFFFFFF&
+    Expand = True
+    Alignment = Align.Center
+    Border = Border.Plain
+  }
+  { VBox1 VBox
+    MoveScaled(5,6,26,36)
+  }
+  { ButtonCerrar Button
+    MoveScaled(7,54,18,4.2857)
+    Text = ("Cerrar")
+  }
+}

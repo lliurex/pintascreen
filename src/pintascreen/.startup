@@ -1,0 +1,17 @@
+Mmain
+pintaScreen
+0
+0
+0.0.77
+
+gb.image
+gb.gui.qt
+gb.form
+gb.desktop
+gb.desktop.x11
+gb.settings
+gb.net
+gb.net.curl
+gb.sdl.sound
+gb.v4l
+

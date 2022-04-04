@@ -1,0 +1,366 @@
+' Gambas class file
+
+Private incrementoX As Integer
+Private incrementoY As Integer
+
+Property objeto As Object
+Private hobjeto As Object
+
+Public Struct ObjetoTipo
+  nombre As String
+  tipo As String
+  control As String
+End Struct
+
+Private activaListaPropiedadesDatas As Boolean = False
+Private ListaMostrar As New String[]
+Private listaControl As New String[]
+
+Private Function objeto_Read() As Object
+
+  Return hobjeto
+
+End
+
+Private Sub objeto_Write(Value As Object)
+
+  hobjeto = Value
+
+End
+
+Public Sub Form_Open()
+
+  Dim propiedades As Collection
+  'creo lista de propiedades y controles
+
+  LabelObjeto.text = "Objeto: " & Str(Me.objeto)
+
+  propiedades = listaPropiedades(Me.objeto)
+  CreaControles(propiedades)
+
+  Me.Border = False
+
+End
+
+'--------------------------------------
+Public Sub listaPropiedades(obj As Object) As Collection
+
+  Dim s As String
+  Dim hlistaPropiedades As New Collection
+
+  Dim hclass As Class = Object.Class(obj)
+
+  Dim Est_Prop As ObjetoTipo
+
+  For Each s In hclass.symbols
+    If s = "Children" Then Continue
+    If hclass[s].readOnly Then Continue
+
+    Est_Prop = New ObjetoTipo
+
+    Est_Prop.nombre = Object.GetProperty(obj, s)
+    Est_Prop.tipo = TypeOf(Object.GetProperty(obj, s)) 'tipo integer, long, string
+
+    Select Case activaListaPropiedadesDatas
+      Case True
+
+        If ListaMostrar.Exist(s) = True Then
+          Est_Prop.nombre = Object.GetProperty(obj, s)
+          Try Est_Prop.control = listaControl[ListaMostrar.Find(s)]
+
+          hlistaPropiedades.add(Est_Prop, s)
+        Endif
+      Case False
+        hlistaPropiedades.add(Est_Prop, s)
+    End Select
+
+  Next
+
+  Return hlistaPropiedades
+
+End
+
+Public Sub CreaControles(datos As Collection)
+
+  Dim valor As ObjetoTipo
+  Dim htmp As HBox
+  Dim ltmp As Label
+  Dim ttmp As TextBox
+  Dim vtmp As ValueBox
+  Dim checktmp As CheckBox
+  Dim BBtmp As ButtonBoxDobleTag
+
+  Dim ColorButtonTMP As ColorButton
+  'lo suyo seria ordenar por orden alfabetico las propiedades....."
+
+  htmp = New HBox(VBox1)
+  htmp.h = 30
+  htmp.w = VBox1.W
+
+  'etiqueta de "Propiedades
+  ltmp = New Label(htmp)
+  ltmp.h = 30
+  ltmp.Border = Border.Plain
+  ltmp.w = 100
+  ltmp.text = "Propiedades"
+  ltmp.Font = Font["bold"]
+  ltmp.Alignment = Align.Center
+  ltmp.Background = Color.LightGray
+
+  'etiqueta de "Valor"
+  ltmp = New Label(htmp)
+  ltmp.h = 30
+  ltmp.Border = Border.Plain
+
+  ltmp.w = VBox1.w / 2
+  ltmp.text = "Valor"
+  ltmp.Font = Font["bold"]
+  ltmp.Alignment = Align.Center
+  ltmp.Expand = True
+  ltmp.Background = Color.LightGray
+
+  For Each valor In datos
+    htmp = New HBox(VBox1)
+    htmp.h = 30
+    htmp.w = VBox1.W
+
+    ltmp = New Label(htmp)
+    ltmp.h = 30
+    ltmp.w = 100
+    ltmp.text = datos.Key & ":"
+    ltmp.Tooltip = datos.Key
+    ltmp.Alignment = Align.Right
+    ltmp.Border = Border.Plain
+
+    'si no se especifica ningun tipo de control....
+    If valor.control = "" Then
+
+      Select Case valor.tipo
+
+        Case gb.String
+
+          ttmp = New TextBox(htmp) As "Observador"
+          ttmp.h = 30
+          ttmp.w = VBox1.w / 2
+          ttmp.text = valor.nombre
+          ttmp.Expand = True
+          ttmp.Tag = [datos.Key, valor.tipo]
+
+        Case gb.Integer, gb.Long, gb.Float
+          vtmp = New ValueBox(htmp) As "Observador"
+          vtmp.h = 30
+          vtmp.w = VBox1.w / 2
+          vtmp.value = Val(valor.nombre)
+          vtmp.Expand = True
+          vtmp.Tag = [datos.Key, valor.tipo]
+
+        Case gb.Boolean
+          checktmp = New CheckBox(htmp) As "ObservadorCheck"
+          checktmp.h = 30
+          checktmp.w = VBox1.w / 2
+          If valor.nombre = "T" Then
+            checktmp.value = True
+          Else
+            checktmp.value = False
+          Endif
+
+          checktmp.Expand = True
+          checktmp.Tag = [datos.Key, valor.tipo]
+
+        Default
+          'no hago nada...
+
+      End Select
+    Else
+      'me han definido el tipo de control....
+
+      Select Case Upper$(valor.control)
+        Case "COLORBUTTON"
+          ColorButtonTMP = New ColorButton(htmp) As "ObservadorColor"
+          ColorButtonTMP.h = 30
+          ColorButtonTMP.w = VBox1.w / 2
+          Try ColorButtonTMP.value = Val(valor.nombre)
+          ColorButtonTMP.Expand = True
+          ColorButtonTMP.Tag = [datos.Key, valor.tipo]
+        Case Upper$("SelectDirectory")
+          BBtmp = New ButtonBoxDobleTag(htmp) As "ObservadonBotonBox"
+          defineBotonBox(bbtmp, vbox1, valor, datos)
+          BBtmp.TIPO = "selectdirectory"
+        Case Upper$("OpenFile")
+          BBtmp = New ButtonBoxDobleTag(htmp) As "ObservadonBotonBox"
+          defineBotonBox(bbtmp, vbox1, valor, datos)
+          BBtmp.TIPO = "OpenFile"
+        Case Upper$("SaveFile")
+          BBtmp = New ButtonBoxDobleTag(htmp) As "ObservadonBotonBox"
+          defineBotonBox(bbtmp, vbox1, valor, datos)
+          BBtmp.TIPO = "SaveFile"
+      End Select
+    Endif
+  Next
+
+  VBox1.h = (datos.count + 1) * 30
+  Me.h = VBox1.h + LabelObjeto.h + ButtonCerrar.h
+
+End
+
+Public Sub ObservadonBotonBox_Click()
+
+  Select Case Last.tipo
+    Case "selectdirectory"
+      If Not Dialog.SelectDirectory() Then
+        Last.text = Dialog.Path
+        Last.tooltip = Last.text
+        Try Object.SetProperty(Me.objeto, Last.tag[0], Last.text)
+      Endif
+    Case "OpenFile"
+      If Not Dialog.OpenFile() Then
+        Last.text = Dialog.Path
+        Last.tooltip = Last.text
+        Try Object.SetProperty(Me.objeto, Last.tag[0], Last.text)
+      Endif
+    Case "SaveFile"
+      If Not Dialog.SaveFile() Then
+        Last.text = Dialog.Path
+        Last.tooltip = Last.text
+        Try Object.SetProperty(Me.objeto, Last.tag[0], Last.text)
+      Endif
+  End Select
+
+End
+
+Public Sub ObservadorColor_Change()
+
+  Try Object.SetProperty(Me.objeto, Last.tag[0], Last.value)
+
+End
+
+Public Sub ObservadorCheck_Click()
+
+  Try Object.SetProperty(Me.objeto, Last.tag[0], Last.value)
+
+End
+
+Public Sub Observador_KeyPress()
+
+  If Key.code = Key.enter Or Key.code = Key.return Then
+    Object.SetProperty(Me.objeto, Last.tag[0], Last.text)
+  Endif
+
+End
+
+Public Sub Observador_lostFocus()
+
+  If object.Class(Last).name = "TextBox" Then
+    Try Object.SetProperty(Me.objeto, Last.tag[0], Last.text)
+    Return
+  Endif
+
+  Try Object.SetProperty(Me.objeto, Last.tag[0], Last.value)
+
+  If Error Then
+    Message.Error("no es válido el dato introducido")
+  Endif
+
+End
+
+Public Sub Convierte(obj As Object, datos As Collection)
+
+  Dim valor As Variant
+
+  For Each valor In datos
+    Try Object.SetProperty(obj, datos.key, valor)
+    If Error Then
+
+      Print "Error: no es posible que se la esta asignando un tipo distinto al que tiene el dato"
+
+    Endif
+
+  Next
+
+End
+
+Public Sub Form_Close()
+
+  Dim s As String
+
+  Dim hclass As Class = Object.Class(Me.objeto)
+
+  ' Debug ""
+  '  Debug ""
+
+  If Upper$(object.Class(Last).name) <> Upper$("FormCuadroPropiedades") Then
+    If object.Class(Last).name = "valuebox" Or Object.Class(Last).name = "checkbox" Then
+      Try Object.SetProperty(Me.objeto, Last.tag, Last.value)
+
+    Else
+      Try Object.SetProperty(Me.objeto, Last.tag, Last.text)
+    Endif
+
+  Endif
+
+  For Each s In hclass.symbols
+    If s = "Children" Then Continue
+    If hclass[s].readOnly Then Continue
+    '   Debug Object.GetProperty(Me.objeto, s), s
+  Next
+
+End
+
+Public Sub ButtonCerrar_Click()
+
+  Me.Close()
+
+End
+
+Public Sub LabelObjeto_MouseMove()
+
+  Me.x += Mouse.X - incrementoX
+  Me.Y += Mouse.y - incrementoY
+
+End
+
+Public Sub LabelObjeto_MouseDown()
+
+  incrementoX = Mouse.X
+  incrementoY = Mouse.Y
+
+End
+
+Public Sub mostrar(o As Object, Optional lista As String[])
+
+  Dim a As Integer
+  Dim palabras As String[]
+
+  If Not IsNull(lista) Then
+    activaListaPropiedadesDatas = True
+
+    For a = 0 To lista.max
+      palabras = Split(lista[a], "|")
+      If palabras.count = 1 Then
+        ListaMostrar.Add(palabras[0])
+        listaControl.add("")
+      Else
+        ListaMostrar.Add(palabras[0])
+        listaControl.add(palabras[1])
+      Endif
+    Next
+
+  Endif
+  Me.objeto = o
+  Me.Showmodal()
+
+End
+
+'-----------------------------
+'codigo para reutilizar
+'-----------------------------
+Public Sub defineBotonBox(bbtmp As ButtonBox, vboxtmp As Container, valor As ObjetoTipo, datos As Collection)
+
+  BBtmp.h = 30
+  BBtmp.w = VBoxtmp.w / 2
+  Try BBtmp.text = valor.nombre
+  bBtmp.Tooltip = valor.nombre
+  BBtmp.Expand = True
+  BBtmp.Tag = [datos.Key, valor.tipo]
+
+End

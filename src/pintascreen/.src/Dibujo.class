@@ -1,0 +1,118 @@
+' Gambas class file
+
+Public ptoControl As Boolean
+'Private hptoControl As Boolean
+
+Private hcolor As Integer
+Private htransparencia As Integer
+Private htamano As Integer
+
+Public Sub _new(...)
+
+End
+
+Public Sub dibuja(...)
+
+End
+
+Public Sub dibujandoMoviendote(...)
+
+End
+
+Public Sub SetColor(valor As Integer)
+
+  hcolor = valor
+
+End
+
+Public Function getColor() As Integer
+
+  Return hcolor
+
+End
+
+Public Sub SetTransparencia(valor As Integer)
+
+  htransparencia = valor
+
+End
+
+Public Function getTransparencia() As Integer
+
+  Return htransparencia
+
+End
+
+Public Sub Settamano(valor As Integer)
+
+  htamano = valor
+
+End
+
+Public Sub getTamano() As Integer
+
+  Return htamano
+
+End
+
+Public Sub desplaza(x As Integer, y As Integer)
+
+  '  Print "'desplazo objeto"
+
+End
+
+Public Sub getx() As Integer
+
+End
+
+Public Sub gety() As Integer
+
+End
+
+' Private Function ptoControl_Read() As Boolean
+'
+'   Return hptoControl
+'
+' End
+'
+' Private Sub ptoControl_Write(Value As Boolean)
+'
+'   hptoControl = Value
+'
+' End
+
+Public iconoMover As Image
+
+Public Sub informePtoSeleccionado(...)
+
+End
+
+Public Sub getxD() As Integer
+
+End
+
+Public Sub getyD() As Integer
+
+End
+
+Public tipoIcono As String
+
+Public tipoImagen As Boolean
+
+Public Sub mostrarPropiedades()
+
+  'codigo para mostra las propiedades del objeto
+
+End
+
+'-------------------------------- guardar --- abrir archivos de pantallas -------
+
+Public Sub guardar() As String
+
+End
+
+Public Function abrir(Arraylinea As String[]) As Boolean
+
+  Return False
+
+End
