@@ -1,4 +1,0 @@
-?package(pintascreen):needs="X11" section="Applications/Graphics"\
-title="pintaScreen"\
-command="/usr/bin/pintascreen"\
-icon="/usr/share/pixmaps/pintascreen.xpm"
