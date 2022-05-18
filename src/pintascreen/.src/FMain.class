@@ -1078,23 +1078,36 @@ End
 Public Sub ToolButtonVentanas_Click()
 
   Dim valortmp As Integer
-
   If ToolButtonVentanas.tag = "Vertical" Then
-    valortmp = VBox1.w
-    VBox1.w = Screen.w
-    VBox1.h = valortmp
-    VBox1.x = 0
-    VBox1.y = Screen.h - 50
-    ToolButtonVentanas.Picture = Picture["hv.png"] ' Picture["vertical.png"]
+    'valortmp = VBox1.w
+    'VBox1.w = Screen.w
+    'VBox1.h = valortmp
+    'VBox1.x = 0
+    'VBox1.y = Screen.h - 50
+    
+    valortmp = VBox1.W
+    VBox1.W = VBox1.H
+    VBox1.H = valortmp
+    VBox1.x = Screen.w - 30 - VBox1.W 
+    VBox1.y = 30
+    'ToolButtonVentanas.Picture = Picture["hv.png"] ' Picture["vertical.png"]
     ToolButtonVentanas.tag = "Horizontal"
+    Print VBox1.w
+    
   Else
-    valortmp = VBox1.h
-    VBox1.h = VBox1.w
-    VBox1.w = valortmp
+    'valortmp = VBox1.h
+    'VBox1.h = VBox1.w
+    'VBox1.w = valortmp
+    valortmp = VBox1.W
+    VBox1.W = VBox1.H
+    VBox1.H = valortmp
+    VBox1.x = Screen.w - 30 - VBox1.W 
+    VBox1.y = 30
     ToolButtonVentanas.tag = "Vertical"
-    ToolButtonVentanas.Picture = Picture["hv.png"] ''Picture["horizontal.png"]
-    VBox1.x = Screen.w - VBox1.w
-    VBox1.y = 0
+    'ToolButtonVentanas.Picture = Picture["hv.png"] ''Picture["horizontal.png"]
+    'VBox1.x = Screen.w - VBox1.w
+    'VBox1.y = 0
+    
 
   Endif
 
