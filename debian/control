@@ -16,7 +16,7 @@ Description: Pinta, señala, marca, escribe en la pantalla para mejorar tus e...
 
 Package: pintascreen-qt5
 Architecture: all
-Depends: pintascreen (>= 0.0.77 ), pintascreen (= 0.0.77-0lliurex1), gambas3-gb-qt5 (>= 3.14), gambas3-gb-qt5 (<< 3.99.0)
+Depends: pintascreen, gambas3-gb-qt5 (>= 3.14), gambas3-gb-qt5 (<< 3.99.0)
 Description: qt5 package for pintaScreen
  This is the dummy qt5 package for pintaScreen
 
