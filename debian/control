@@ -7,7 +7,7 @@ Standards-Version: 3.9.6
 
 Package: pintascreen
 Architecture: all
-Depends: gambas3-runtime (>= 3.14), gambas3-runtime (<< 3.99.0), gambas3-gb-image (>= 3.14), gambas3-gb-image (<< 3.99.0), gambas3-gb-form (>= 3.14), gambas3-gb-form (<< 3.99.0), gambas3-gb-desktop (>= 3.14), gambas3-gb-desktop (<< 3.99.0), gambas3-gb-desktop-x11 (>= 3.14), gambas3-gb-desktop-x11 (<< 3.99.0), gambas3-gb-settings (>= 3.14), gambas3-gb-settings (<< 3.99.0), gambas3-gb-net (>= 3.14), gambas3-gb-net (<< 3.99.0), gambas3-gb-net-curl (>= 3.14), gambas3-gb-net-curl (<< 3.99.0), gambas3-gb-sdl-sound (>= 3.14), gambas3-gb-sdl-sound (<< 3.99.0), gambas3-gb-v4l (>= 3.14), gambas3-gb-v4l (<< 3.99.0)
+Depends: gambas3-runtime (>= 3.14), gambas3-runtime (<< 3.99.0), gambas3-gb-image (>= 3.14), gambas3-gb-image (<< 3.99.0), gambas3-gb-form (>= 3.14), gambas3-gb-form (<< 3.99.0), gambas3-gb-desktop (>= 3.14), gambas3-gb-desktop (<< 3.99.0), gambas3-gb-desktop-x11 (>= 3.14), gambas3-gb-desktop-x11 (<< 3.99.0), gambas3-gb-settings (>= 3.14), gambas3-gb-settings (<< 3.99.0), gambas3-gb-net (>= 3.14), gambas3-gb-net (<< 3.99.0), gambas3-gb-net-curl (>= 3.14), gambas3-gb-net-curl (<< 3.99.0), gambas3-gb-sdl-sound (>= 3.14), gambas3-gb-sdl-sound (<< 3.99.0), gambas3-gb-v4l (>= 3.14), gambas3-gb-v4l (<< 3.99.0), imagemagick-6.q16, wmctrl, scrot
 Description: Pinta, señala, marca, escribe en la pantalla para mejorar tus e...
  Pinta, señala, marca, escribe en la pantalla para mejorar tus explicaciones.
  Con teclado Virtual. Toma de capturas con retardo de 5 segundos. Traducido al
