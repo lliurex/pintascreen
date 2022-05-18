@@ -27,7 +27,7 @@ Public Function BuscarObjeto(figuras As Dibujo[], x As Integer, y As Integer) As
       'pruebo ptodimension
       d = ((dtmp.getxD() - x) ^ 2 + (dtmp.getyD() - y) ^ 2) ^ (1 / 2)
       If d < distancia Then
-        If Object.Class(dtmp).Name = "Chincheta" And dtmp.TipoImagen = True Then
+        If Object.Class(dtmp).Name = "Chincheta" And dtmp.tipoImagen = True Then
           'AVISO AL OBJETO DE LO QUE LO VOY A REDIMENSIONAR. (se trata de una imagen elegida
           dtmp.informePtoSeleccionado("redimensiona")
           Return dtmp

@@ -6,7 +6,7 @@ Private mouseinicioY As Integer
 Private chincheta As Image = Image.Load("chincheta48x48.png")
 Private iconoDesplazar As Image = Image.Load("cambiarSize2.png")
 
-Public TipoImagen As Boolean = False
+'Public TipoImagen As Boolean = False
 Private ptoSeleccionado As Integer '1 es para mover, 2 es para redimensionar
 
 Private ptoDimension As New Point
@@ -25,7 +25,7 @@ Public Sub _new(...)
   mouseinicioY = param[1]
   If Param.count > 2 Then
     ''se trata de una imagen
-    TipoImagen = True
+    Me.tipoImagen = True
     ptoDimension.x = Param[2] + param[0]
     ptoDimension.y = Param[3] + param[1]
   Endif
@@ -52,7 +52,7 @@ Public Sub dibuja()
   If Super.ptoControl = True Then
     Paint.DrawImage(Me.iconoMover, mouseinicioX - 16, mouseinicioY - 16)
     Paint.stroke
-    If TipoImagen = True And Me.tipoIcono = "mover.png" Then
+    If Me.tipoImagen = True And Me.tipoIcono = "mover.png" Then
       Paint.DrawImage(iconoDesplazar, ptoDimension.X - 16, ptoDimension.y - 16)
 
       Paint.stroke
@@ -148,7 +148,7 @@ Public Sub mostrarpropiedades()
 
   Dim pro As New FormCuadroPropiedades
 
-  If TipoImagen = True Then
+  If Me.tipoImagen = True Then
     pro.mostrar(Me, ["Coord_X", "Coord_Y", "Imagen|OpenFile", "AnchoX", "AltoY"])
   Else
     pro.mostrar(Me, ["Coord_X", "Coord_Y"])
@@ -241,7 +241,7 @@ Public Sub guardar() As String
   contenido &= Str$(mouseinicioY) & "|"
   contenido &= Str$(ancho) & "|"
   contenido &= Str$(alto) & "|"
-  contenido &= Str$(TipoImagen) & "|"
+  contenido &= Str$(Me.tipoImagen) & "|"
   contenido &= Str$(ptoDimension.x) & "|"
   contenido &= Str$(ptoDimension.y) & "|"
 
@@ -260,7 +260,7 @@ Public Function abrir(Arraylinea As String[]) As Boolean
     mouseinicioY = Val(Arraylinea[4])
     ancho = Val(Arraylinea[5])
     alto = Val(Arraylinea[6])
-    TipoImagen = Val(Arraylinea[7])
+    Me.tipoImagen = Val(Arraylinea[7])
     ptoDimension.x = Val(Arraylinea[8])
     ptoDimension.y = Val(Arraylinea[9])
     Return True
