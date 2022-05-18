@@ -1330,6 +1330,7 @@ Public Sub ToolButtonFondo_Click()
     PulsadoUnaTecla(16777223)
     Select Case datos[1]
       Case "blanco"
+        DibujaEfecto = ""
         PictureBoxFondo.picture = Picture["blanco.png"]
         RutaImagenfondo = user.home & "/.config/pintascreen/blanco.png"
       Case "fondodinamico2pantallas"
