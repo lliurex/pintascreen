@@ -1,14 +1,14 @@
 pintascreen (0.0.77-0lliurex2) focal; urgency=medium
 
-  * Change category
+  * Fix bug
 
- -- M.Angel Juan <m.angel.juan@gmail.com>  Fri, 03 Jun 2022 11:16:19 +0200
+ -- M.Angel Juan <m.angel.juan@gmail.com>  Wed, 18 May 2022 10:49:06 +0200
 
 pintascreen (0.0.77-0lliurex1) focal; urgency=low
 
-  * New release version
+  * New release version for lliurex
 
- -- Julio Sanchez Berro <jusabejusabe@gmail.com>  Sat, 31 Mar 2018 12:00:00 +0000
+ -- M.Angel Juan <m.angel.juan@gmail.com>  Sat, 31 Mar 2018 12:00:00 +0000
 
 pintascreen (0.0.77-0ubuntu1) unstable; urgency=low
 

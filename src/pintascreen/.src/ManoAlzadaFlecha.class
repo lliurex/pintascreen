@@ -14,9 +14,12 @@ Private angulo As Integer
 Private triangulo As Image
 Private CreaTriangulo As New ColorearTriangulo
 Private Dashes As Float[] = [5.0, 1.0, 1.0, 1.0]  'skip
-
+Private i As Integer = 1
 Private dx As Integer
 Private dy As Integer
+
+Private p1 As Point
+Private p2 As Point
 
 Public Sub _new(...)
 
@@ -68,10 +71,25 @@ Public Sub dibuja()
   If ptofinal = True Then
     'dibuja la flecha....
 
-    triangulo = triangulo.Rotate(Rad(angulo))
+    'triangulo = triangulo.Rotate(Rad(angulo))
+    'Paint.DrawImage(triangulo, girox, giroy)
+    'Paint.MoveTo(p1.x, p1.y)
+    Dim theta As Float = 20
+    Dim long As Integer = 20
+    Dim ax As Float = mousefinalx + long * Cos(Rad(angulo - 180 - theta)) 
+    Dim ay As Float = mousefinaly - long * Sin(Rad(angulo - 180 - theta)) 
+    Dim bx As Float = mousefinalx + long * Cos(Rad(angulo - 180 + theta))
+    Dim by As Float = mousefinaly - long * Sin(Rad(angulo - 180 + theta)) 
+    Paint.MoveTo(mousefinalX, mousefinalY)
+    Paint.LineTo(ax, ay)
+    Paint.LineTo(bx, by)
+    
+    'Paint.LineTo(p2.x, p2.y)
 
-    Paint.DrawImage(triangulo, girox, giroy)
+    Paint.ClosePath
+    Paint.Fill(True)
     Paint.stroke
+    
   Endif
   If Super.ptoControl = True Then
     Paint.DrawImage(Me.iconoMover, ArrayCoord[ArrayCoord.Max].x, ArrayCoord[ArrayCoord.Max].y)
@@ -115,7 +133,7 @@ Public Sub calcularAngulosYGiro(x As Integer, y As Integer)
 
   mouseestuvoX = ArrayCoord[ArrayCoord.max - 1].X
   mouseestuvoY = ArrayCoord[ArrayCoord.max - 1].y
-
+  
   mousefinalx = x
   mousefinalY = y
 
