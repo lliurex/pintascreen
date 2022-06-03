@@ -1,3 +1,9 @@
+pintascreen (0.0.77-0lliurex3) focal; urgency=medium
+
+  * Change category
+
+ -- M.Angel Juan <m.angel.juan@gmail.com>  Fri, 03 Jun 2022 11:23:35 +0200
+
 pintascreen (0.0.77-0lliurex2) focal; urgency=medium
 
   * Fix bug
