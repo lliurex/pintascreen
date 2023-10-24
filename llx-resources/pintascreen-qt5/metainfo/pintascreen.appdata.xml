@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+<id>pintascreen</id>
+<metadata_license>CC0-1.0</metadata_license>
+<name xml:lang="gl_ES">pintaScreen</name>
+<name xml:lang="gl">pintaScreen</name>
+<name>pintaScreen</name>
+<name xml:lang="pt">pintaScreen</name>
+<summary>Pinta, señala, marca, escribe en la pantalla para mejorar tus explicaciones</summary>
+<description>
+<p>Pinta, señala, marca, escribe en la pantalla para mejorar tus explicaciones. Con teclado Virtual. Toma de capturas con retardo de 5 segundos. Traducido al gallego, portugues y al ingles.</p>
+</description>
+<categories>
+<category>Classroom</category>
+</categories>
+<icon type="stock">pintascreen</icon>
+<provides><binary>pintascreen</binary></provides>
+<keywords>
+<keyword>pintascreen</keyword>
+<keyword>pintaScreen</keyword>
+<keyword>pinta</keyword>
+<keyword>marca</keyword>
+<keyword>escribe</keyword>
+<keyword>senyala</keyword>
+<keyword>señala</keyword>
+<keyword>sobreescribe</keyword>
+<keyword>pantalla</keyword>
+</keywords>
+</component>
