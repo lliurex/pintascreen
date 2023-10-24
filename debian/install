@@ -1,0 +1,9 @@
+src/pintascreen/pintascreen usr/bin
+debian/pintascreen.desktop usr/share/applications
+src/pintascreen/.hidden/.icons/pintascreen.xpm usr/share/pixmaps
+src/pintascreen/.hidden/.icons/16/pintascreen.png /usr/share/icons/hicolor/16x16/apps
+src/pintascreen/.hidden/.icons/22/pintascreen.png /usr/share/icons/hicolor/22x22/apps
+src/pintascreen/.hidden/.icons/32/pintascreen.png /usr/share/icons/hicolor/32x32/apps
+src/pintascreen/.hidden/.icons/48/pintascreen.png /usr/share/icons/hicolor/48x48/apps
+src/pintascreen/.hidden/.icons/64/pintascreen.png /usr/share/icons/hicolor/64x64/apps
+
