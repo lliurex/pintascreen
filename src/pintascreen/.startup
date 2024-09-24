@@ -12,6 +12,6 @@ gb.desktop.x11
 gb.settings
 gb.net
 gb.net.curl
-gb.sdl.sound
+gb.sdl2.audio
 gb.v4l
 
