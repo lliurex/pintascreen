@@ -1,3 +1,9 @@
+pintascreen (0.0.77-0lliurex5) noble; urgency=medium
+
+  * Initial release for Noble
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Tue, 24 Sep 2024 09:47:59 +0200
+
 pintascreen (0.0.77-0lliurex4) jammy; urgency=medium
 
   * Initial release for Jammy
